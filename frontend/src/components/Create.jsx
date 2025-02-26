@@ -44,7 +44,7 @@ const Create = () => {
         console.log("Отправляемые данные:", requestData);
 
         try {
-            const response = await fetch("http://localhost:8000/create_vm/", {
+            const response = await fetch("http://192.168.0.43/api/create_vm/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
