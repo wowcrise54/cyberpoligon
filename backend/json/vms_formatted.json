@@ -1,0 +1,10 @@
+[
+    {
+        "cpu_cores": 3,
+        "id": "b1d09b23-28a1-48ac-b56a-c2de3d0ad003",
+        "memory_gb": 4.0,
+        "name": "ubuntu",
+        "os_type": "ubuntu_18_04",
+        "status": "up"
+    }
+]

@@ -1,0 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
+
+.g-root_theme_light {
+    
+    --g-font-family-sans: 'Inter', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+    --g-font-family-monospace: 'Roboto Mono', 'Menlo', 'Monaco', 'Consolas', 'Ubuntu Mono', 'Liberation Mono', 'DejaVu Sans Mono', 'Courier New', 'Courier', monospace;
+    
+    --g-color-private-brand-50: rgba(147,200,111,0.1);
+        --g-color-private-brand-100: rgba(147,200,111,0.15);
+        --g-color-private-brand-150: rgba(147,200,111,0.2);
+        --g-color-private-brand-200: rgba(147,200,111,0.3);
+        --g-color-private-brand-250: rgba(147,200,111,0.4);
+        --g-color-private-brand-300: rgba(147,200,111,0.5);
+        --g-color-private-brand-350: rgba(147,200,111,0.6);
+        --g-color-private-brand-400: rgba(147,200,111,0.7);
+        --g-color-private-brand-450: rgba(147,200,111,0.8);
+        --g-color-private-brand-500: rgba(147,200,111,0.9);
+        --g-color-private-brand-550-solid: rgb(147,200,111);
+        --g-color-private-brand-1000-solid: rgb(51,55,46);
+        --g-color-private-brand-950-solid: rgb(57,63,49);
+        --g-color-private-brand-900-solid: rgb(68,80,57);
+        --g-color-private-brand-850-solid: rgb(79,97,65);
+        --g-color-private-brand-800-solid: rgb(91,115,73);
+        --g-color-private-brand-750-solid: rgb(102,132,80);
+        --g-color-private-brand-700-solid: rgb(113,149,88);
+        --g-color-private-brand-650-solid: rgb(124,166,96);
+        --g-color-private-brand-600-solid: rgb(136,183,103);
+        --g-color-private-brand-500-solid: rgb(158,206,125);
+        --g-color-private-brand-450-solid: rgb(169,211,140);
+        --g-color-private-brand-400-solid: rgb(179,217,154);
+        --g-color-private-brand-350-solid: rgb(190,222,169);
+        --g-color-private-brand-300-solid: rgb(201,228,183);
+        --g-color-private-brand-250-solid: rgb(212,233,197);
+        --g-color-private-brand-200-solid: rgb(223,239,212);
+        --g-color-private-brand-150-solid: rgb(233,244,226);
+        --g-color-private-brand-100-solid: rgb(239,247,233);
+        --g-color-private-brand-50-solid: rgb(244,250,241);
+        --g-color-line-generic: rgba(46, 44, 44, 0.2);
+        --g-color-background-generic: #F6F6F6;
+        
+        
+        --g-color-base-brand: #93C86F;
+        --g-color-base-background: rgb(255,255,255);
+        --g-color-base-brand-hover: var(--g-color-private-brand-600-solid);
+        --g-color-base-selection: var(--g-color-private-brand-200);
+        --g-color-base-selection-hover: var(--g-color-private-brand-300);
+        --g-color-line-brand: var(--g-color-private-brand-600-solid);
+        --g-color-text-brand: var(--g-color-private-brand-700-solid);
+        --g-color-text-brand-heavy: var(--g-color-private-brand-700-solid);
+        --g-color-text-brand-contrast: rgb(255, 255, 255);
+        --g-color-text-link: var(--g-color-private-brand-600-solid);
+        --g-color-text-link-hover: var(--g-color-private-brand-800-solid);
+        --g-color-text-link-visited: var(--g-color-private-purple-550-solid);
+        --g-color-text-link-visited-hover: var(--g-color-private-purple-800-solid);
+}
+
+.g-root_theme_dark {
+    
+    --g-font-family-sans: 'Inter', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+    --g-font-family-monospace: 'Roboto Mono', 'Menlo', 'Monaco', 'Consolas', 'Ubuntu Mono', 'Liberation Mono', 'DejaVu Sans Mono', 'Courier New', 'Courier', monospace;
+    
+    --g-color-private-brand-50: rgba(147,200,111,0.1);
+        --g-color-private-brand-100: rgba(147,200,111,0.15);
+        --g-color-private-brand-150: rgba(147,200,111,0.2);
+        --g-color-private-brand-200: rgba(147,200,111,0.3);
+        --g-color-private-brand-250: rgba(147,200,111,0.4);
+        --g-color-private-brand-300: rgba(147,200,111,0.5);
+        --g-color-private-brand-350: rgba(147,200,111,0.6);
+        --g-color-private-brand-400: rgba(147,200,111,0.7);
+        --g-color-private-brand-450: rgba(147,200,111,0.8);
+        --g-color-private-brand-500: rgba(147,200,111,0.9);
+        --g-color-private-brand-550-solid: rgb(147,200,111);
+        --g-color-private-brand-1000-solid: rgb(239,247,233);
+        --g-color-private-brand-950-solid: rgb(233,244,226);
+        --g-color-private-brand-900-solid: rgb(223,239,212);
+        --g-color-private-brand-850-solid: rgb(212,233,197);
+        --g-color-private-brand-800-solid: rgb(201,228,183);
+        --g-color-private-brand-750-solid: rgb(190,222,169);
+        --g-color-private-brand-700-solid: rgb(179,217,154);
+        --g-color-private-brand-650-solid: rgb(169,211,140);
+        --g-color-private-brand-600-solid: rgb(158,206,125);
+        --g-color-private-brand-500-solid: rgb(136,183,103);
+        --g-color-private-brand-450-solid: rgb(124,166,96);
+        --g-color-private-brand-400-solid: rgb(113,149,88);
+        --g-color-private-brand-350-solid: rgb(102,132,80);
+        --g-color-private-brand-300-solid: rgb(91,115,73);
+        --g-color-private-brand-250-solid: rgb(79,97,65);
+        --g-color-private-brand-200-solid: rgb(68,80,57);
+        --g-color-private-brand-150-solid: rgb(57,63,49);
+        --g-color-private-brand-100-solid: rgb(51,55,46);
+        --g-color-private-brand-50-solid: rgb(45,46,42);
+        --g-color-line-generic: rgba(255, 255, 255, .2);
+        --g-color-background-generic: #000000;
+        
+        
+        --g-color-base-brand: #93C86F;
+        --g-color-base-background: rgb(34,29,34);
+        --g-color-base-brand-hover: var(--g-color-private-brand-650-solid);
+        --g-color-base-selection: var(--g-color-private-brand-150);
+        --g-color-base-selection-hover: var(--g-color-private-brand-200);
+        --g-color-line-brand: var(--g-color-private-brand-600-solid);
+        --g-color-text-brand: var(--g-color-private-brand-600-solid);
+        --g-color-text-brand-heavy: var(--g-color-private-brand-700-solid);
+        --g-color-text-brand-contrast: rgb(255, 255, 255);
+        --g-color-text-link: var(--g-color-private-brand-550-solid);
+        --g-color-text-link-hover: var(--g-color-private-brand-700-solid);
+        --g-color-text-link-visited: var(--g-color-private-purple-700-solid);
+        --g-color-text-link-visited-hover: var(--g-color-private-purple-850-solid);
+}

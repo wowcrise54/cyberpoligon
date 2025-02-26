@@ -1,0 +1,46 @@
+/* Основные стили для бокового меню */
+.sidebar {
+    position: fixed;
+    top: 52px;
+    left: 0;
+    width: 180px;
+    height: 100%;
+    border-right: 2px solid var(--g-color-line-generic);
+    padding: 0 10px;
+    display: flex;
+    transition: width 0.3s ease;
+    transition: 0.3s;
+    flex-direction: column;
+}
+
+.sidebar.collapsed {
+    width: 65px; /* Сворачиваем меню */
+    padding: 0; /* Убираем отступы */
+}
+
+.list .list-item {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    margin: 10px 0;
+}
+
+.sidebar.collapsed .list-item {
+    justify-content: center; /* Центрируем иконки */
+    margin: 10px 12px;
+}
+
+.list .list-item .text {
+    margin-left: 10px;
+}
+
+.sidebar.collapsed .button {
+    justify-content: center;
+}
+
+.sidebar .button {
+    justify-content: left;
+}
+
+
+

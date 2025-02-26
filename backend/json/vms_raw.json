@@ -1,0 +1,327 @@
+{
+    "changed": false,
+    "failed": false,
+    "ovirt_vms": [
+        {
+            "affinity_labels": [],
+            "applications": [],
+            "auto_pinning_policy": "disabled",
+            "bios": {
+                "boot_menu": {
+                    "enabled": false
+                },
+                "type": "q35_sea_bios"
+            },
+            "cdroms": [],
+            "cluster": {
+                "href": "/ovirt-engine/api/clusters/7bae0bcc-9fa4-11ef-ab31-00163e4da590",
+                "id": "7bae0bcc-9fa4-11ef-ab31-00163e4da590"
+            },
+            "comment": "",
+            "cpu": {
+                "architecture": "x86_64",
+                "topology": {
+                    "cores": 4,
+                    "sockets": 1,
+                    "threads": 1
+                }
+            },
+            "cpu_pinning_policy": "none",
+            "cpu_profile": {
+                "href": "/ovirt-engine/api/cpuprofiles/58ca604e-01a7-003f-01de-000000000250",
+                "id": "58ca604e-01a7-003f-01de-000000000250"
+            },
+            "cpu_shares": 0,
+            "creation_time": "2024-11-11 02:13:27.423000+05:00",
+            "current_cd": {},
+            "delete_protected": true,
+            "description": "Hosted engine VM",
+            "disk_attachments": [],
+            "display": {
+                "address": "192.168.0.74",
+                "allow_override": false,
+                "certificate": {
+                    "content": "-----BEGIN CERTIFICATE-----\nMIID2DCCAsCgAwIBAgICEAAwDQYJKoZIhvcNAQELBQAwTzELMAkGA1UEBhMCVVMxFTATBgNVBAoM\nDGFjaWQtdGVjaC5ydTEpMCcGA1UEAwwgenZpcnQtY2x1c3Rlci5hY2lkLXRlY2gucnUuMjc0MTIw\nHhcNMjQxMTA5MjA0MjA2WhcNNDQxMTA1MjA0MjA2WjBPMQswCQYDVQQGEwJVUzEVMBMGA1UECgwM\nYWNpZC10ZWNoLnJ1MSkwJwYDVQQDDCB6dmlydC1jbHVzdGVyLmFjaWQtdGVjaC5ydS4yNzQxMjCC\nASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK2FrKOpdARVm2d+enXJ7KwGxoCZXvSxbZuq\nT23HDIulnA7FJs/2x7csJHJMx4GCXLMe0DTTooZwHmhndH58+L0HZW/PWdhJd1rXGCDRKnF04mBq\n5UBJYxTcYH4a0kBnNKlkqsJyzP8eFsuQEk1J/4ReeqDKrC7+JdvJczKomhpX/dm5XRx2oWgbcJhQ\n0YYSV95/bFHbwJnfTUs9R8xmn9NSZjYwzBJUxYFunVtp+7w2xG2J+FtirIdpBKKYNTbMujnBpT7u\nL0XeLHG3USooq98wnQueiaNUvgMElu8NdQHxa4Nt2u2Io90reV8HBokiAbDE26Tq65A8mMZvfErC\nsTkCAwEAAaOBvTCBujAdBgNVHQ4EFgQUpNcjs/b1HKImCpY0veLRykqIXYwweAYDVR0jBHEwb4AU\npNcjs/b1HKImCpY0veLRykqIXYyhU6RRME8xCzAJBgNVBAYTAlVTMRUwEwYDVQQKDAxhY2lkLXRl\nY2gucnUxKTAnBgNVBAMMIHp2aXJ0LWNsdXN0ZXIuYWNpZC10ZWNoLnJ1LjI3NDEyggIQADAPBgNV\nHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIBBjANBgkqhkiG9w0BAQsFAAOCAQEALxcCh2lMGBAy\noRl7KihbUVM4NM4K8SskFpv90QcZO0294y+kuuzlTIdOFAFxA3FU001UHNAywzJRdYJSRDk//tg9\nhR1rGIZ7C8eYjSWx4ubpYtnDsbnAvGzlM4NasmrS9oS+LgJyfq07yCOBemRXwJpXyIGxcMTnXD5H\nxW+x5OvcGk85JGSHeGBd5hX0hW4d4B5usYLw74jU6xu29ZoVKf+49DBiFaurvjrB3LTimlbRDXcV\nt0RLNTdqJWgltm70Vp4B97RLnfJ8yJbCo7pr9M0p1XG7csqRwu82T6mDniZRSutet2jp+vJNKaiE\nsqYiRqsejTXE88inPnrxc0GOaw==\n-----END CERTIFICATE-----\n",
+                    "organization": "acid-tech.ru",
+                    "subject": "O=acid-tech.ru,CN=zvirt-host-1.acid-tech.ru"
+                },
+                "copy_paste_enabled": true,
+                "disconnect_action": "LOCK_SCREEN",
+                "disconnect_action_delay": 0,
+                "file_transfer_enabled": true,
+                "monitors": 1,
+                "port": 5900,
+                "secure_port": 5901,
+                "smartcard_enabled": false,
+                "type": "spice"
+            },
+            "fqdn": "zvirt-cluster.acid-tech.ru",
+            "graphics_consoles": [],
+            "guest_operating_system": {
+                "architecture": "x86_64",
+                "codename": "",
+                "distribution": "CentOS Stream",
+                "family": "Linux",
+                "kernel": {
+                    "version": {
+                        "build": 0,
+                        "full_version": "4.18.0-552.el8.x86_64",
+                        "major": 4,
+                        "minor": 18,
+                        "revision": 552
+                    }
+                },
+                "version": {
+                    "full_version": "8",
+                    "major": 8
+                }
+            },
+            "guest_time_zone": {
+                "name": "+05",
+                "utc_offset": "+05:00"
+            },
+            "high_availability": {
+                "enabled": false,
+                "priority": 1
+            },
+            "host": {
+                "href": "/ovirt-engine/api/hosts/e072f3d2-7b1c-4e14-be47-dcd47d57865b",
+                "id": "e072f3d2-7b1c-4e14-be47-dcd47d57865b"
+            },
+            "host_devices": [],
+            "href": "/ovirt-engine/api/vms/70325c06-686d-41c8-b833-e01df2f77c45",
+            "id": "70325c06-686d-41c8-b833-e01df2f77c45",
+            "io": {
+                "threads": 1
+            },
+            "katello_errata": [],
+            "large_icon": {
+                "href": "/ovirt-engine/api/icons/76903b21-d3db-4aac-bbfa-f5f9ac8e733e",
+                "id": "76903b21-d3db-4aac-bbfa-f5f9ac8e733e"
+            },
+            "mediated_devices": [],
+            "memory": 4294967296,
+            "memory_policy": {
+                "ballooning": true,
+                "guaranteed": 4294967296,
+                "max": 17179869184
+            },
+            "migration": {
+                "auto_converge": "inherit",
+                "compressed": "inherit",
+                "encrypted": "inherit",
+                "parallel_migrations_policy": "inherit"
+            },
+            "migration_downtime": -1,
+            "multi_queues_enabled": true,
+            "name": "HostedEngine",
+            "next_run_configuration_exists": false,
+            "nics": [],
+            "numa_nodes": [],
+            "origin": "managed_hosted_engine",
+            "original_template": {
+                "href": "/ovirt-engine/api/templates/00000000-0000-0000-0000-000000000000",
+                "id": "00000000-0000-0000-0000-000000000000"
+            },
+            "os": {
+                "boot": {
+                    "devices": [
+                        "hd"
+                    ]
+                },
+                "type": "znode"
+            },
+            "permissions": [],
+            "placement_policy": {
+                "affinity": "migratable"
+            },
+            "quota": {
+                "id": "985f52c6-9fa4-11ef-a66b-00163e4da590"
+            },
+            "reported_devices": [],
+            "run_once": false,
+            "sessions": [],
+            "small_icon": {
+                "href": "/ovirt-engine/api/icons/ebfb598d-9d45-46d0-b68f-26b3837f5e6d",
+                "id": "ebfb598d-9d45-46d0-b68f-26b3837f5e6d"
+            },
+            "snapshots": [],
+            "sso": {
+                "methods": [
+                    {
+                        "id": "guest_agent"
+                    }
+                ]
+            },
+            "start_paused": false,
+            "stateless": false,
+            "statistics": [],
+            "status": "up",
+            "stop_time": "2024-11-11 02:13:27.428000+05:00",
+            "storage_error_resume_behaviour": "auto_resume",
+            "tags": [],
+            "template": {
+                "href": "/ovirt-engine/api/templates/00000000-0000-0000-0000-000000000000",
+                "id": "00000000-0000-0000-0000-000000000000"
+            },
+            "time_zone": {
+                "name": "Etc/GMT"
+            },
+            "type": "server",
+            "usb": {
+                "enabled": false
+            },
+            "virtio_scsi_multi_queues_enabled": false,
+            "watchdogs": []
+        },
+        {
+            "affinity_labels": [],
+            "applications": [],
+            "auto_pinning_policy": "disabled",
+            "bios": {
+                "boot_menu": {
+                    "enabled": false
+                },
+                "type": "q35_sea_bios"
+            },
+            "cdroms": [],
+            "cluster": {
+                "href": "/ovirt-engine/api/clusters/7bae0bcc-9fa4-11ef-ab31-00163e4da590",
+                "id": "7bae0bcc-9fa4-11ef-ab31-00163e4da590"
+            },
+            "comment": "",
+            "cpu": {
+                "architecture": "x86_64",
+                "topology": {
+                    "cores": 3,
+                    "sockets": 1,
+                    "threads": 1
+                }
+            },
+            "cpu_pinning_policy": "none",
+            "cpu_profile": {
+                "href": "/ovirt-engine/api/cpuprofiles/58ca604e-01a7-003f-01de-000000000250",
+                "id": "58ca604e-01a7-003f-01de-000000000250"
+            },
+            "cpu_shares": 0,
+            "creation_time": "2024-12-19 23:45:37.894000+05:00",
+            "current_cd": {},
+            "delete_protected": false,
+            "description": "",
+            "disk_attachments": [],
+            "display": {
+                "address": "192.168.0.74",
+                "allow_override": false,
+                "certificate": {
+                    "content": "-----BEGIN CERTIFICATE-----\nMIID2DCCAsCgAwIBAgICEAAwDQYJKoZIhvcNAQELBQAwTzELMAkGA1UEBhMCVVMxFTATBgNVBAoM\nDGFjaWQtdGVjaC5ydTEpMCcGA1UEAwwgenZpcnQtY2x1c3Rlci5hY2lkLXRlY2gucnUuMjc0MTIw\nHhcNMjQxMTA5MjA0MjA2WhcNNDQxMTA1MjA0MjA2WjBPMQswCQYDVQQGEwJVUzEVMBMGA1UECgwM\nYWNpZC10ZWNoLnJ1MSkwJwYDVQQDDCB6dmlydC1jbHVzdGVyLmFjaWQtdGVjaC5ydS4yNzQxMjCC\nASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK2FrKOpdARVm2d+enXJ7KwGxoCZXvSxbZuq\nT23HDIulnA7FJs/2x7csJHJMx4GCXLMe0DTTooZwHmhndH58+L0HZW/PWdhJd1rXGCDRKnF04mBq\n5UBJYxTcYH4a0kBnNKlkqsJyzP8eFsuQEk1J/4ReeqDKrC7+JdvJczKomhpX/dm5XRx2oWgbcJhQ\n0YYSV95/bFHbwJnfTUs9R8xmn9NSZjYwzBJUxYFunVtp+7w2xG2J+FtirIdpBKKYNTbMujnBpT7u\nL0XeLHG3USooq98wnQueiaNUvgMElu8NdQHxa4Nt2u2Io90reV8HBokiAbDE26Tq65A8mMZvfErC\nsTkCAwEAAaOBvTCBujAdBgNVHQ4EFgQUpNcjs/b1HKImCpY0veLRykqIXYwweAYDVR0jBHEwb4AU\npNcjs/b1HKImCpY0veLRykqIXYyhU6RRME8xCzAJBgNVBAYTAlVTMRUwEwYDVQQKDAxhY2lkLXRl\nY2gucnUxKTAnBgNVBAMMIHp2aXJ0LWNsdXN0ZXIuYWNpZC10ZWNoLnJ1LjI3NDEyggIQADAPBgNV\nHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIBBjANBgkqhkiG9w0BAQsFAAOCAQEALxcCh2lMGBAy\noRl7KihbUVM4NM4K8SskFpv90QcZO0294y+kuuzlTIdOFAFxA3FU001UHNAywzJRdYJSRDk//tg9\nhR1rGIZ7C8eYjSWx4ubpYtnDsbnAvGzlM4NasmrS9oS+LgJyfq07yCOBemRXwJpXyIGxcMTnXD5H\nxW+x5OvcGk85JGSHeGBd5hX0hW4d4B5usYLw74jU6xu29ZoVKf+49DBiFaurvjrB3LTimlbRDXcV\nt0RLNTdqJWgltm70Vp4B97RLnfJ8yJbCo7pr9M0p1XG7csqRwu82T6mDniZRSutet2jp+vJNKaiE\nsqYiRqsejTXE88inPnrxc0GOaw==\n-----END CERTIFICATE-----\n",
+                    "organization": "acid-tech.ru",
+                    "subject": "O=acid-tech.ru,CN=zvirt-host-1.acid-tech.ru"
+                },
+                "copy_paste_enabled": true,
+                "disconnect_action": "LOCK_SCREEN",
+                "disconnect_action_delay": 0,
+                "file_transfer_enabled": true,
+                "monitors": 1,
+                "port": 5904,
+                "secure_port": 5905,
+                "smartcard_enabled": false,
+                "type": "spice"
+            },
+            "graphics_consoles": [],
+            "high_availability": {
+                "enabled": false,
+                "priority": 1
+            },
+            "host": {
+                "href": "/ovirt-engine/api/hosts/e072f3d2-7b1c-4e14-be47-dcd47d57865b",
+                "id": "e072f3d2-7b1c-4e14-be47-dcd47d57865b"
+            },
+            "host_devices": [],
+            "href": "/ovirt-engine/api/vms/b1d09b23-28a1-48ac-b56a-c2de3d0ad003",
+            "id": "b1d09b23-28a1-48ac-b56a-c2de3d0ad003",
+            "io": {
+                "threads": 1
+            },
+            "katello_errata": [],
+            "large_icon": {
+                "href": "/ovirt-engine/api/icons/b1983ab4-b66b-48c2-e7d3-7bc3ddacea74",
+                "id": "b1983ab4-b66b-48c2-e7d3-7bc3ddacea74"
+            },
+            "mediated_devices": [],
+            "memory": 4294967296,
+            "memory_policy": {
+                "ballooning": true,
+                "guaranteed": 4294967296,
+                "max": 17179869184
+            },
+            "migration": {
+                "auto_converge": "inherit",
+                "compressed": "inherit",
+                "encrypted": "inherit",
+                "parallel_migrations_policy": "inherit"
+            },
+            "migration_downtime": -1,
+            "multi_queues_enabled": true,
+            "name": "ubuntu",
+            "next_run_configuration_exists": true,
+            "nics": [],
+            "numa_nodes": [],
+            "origin": "ovirt",
+            "original_template": {
+                "href": "/ovirt-engine/api/templates/31f5b1f2-5d26-4de6-80a4-53f9477a428a",
+                "id": "31f5b1f2-5d26-4de6-80a4-53f9477a428a"
+            },
+            "os": {
+                "boot": {
+                    "devices": [
+                        "hd"
+                    ]
+                },
+                "type": "ubuntu_18_04"
+            },
+            "permissions": [],
+            "placement_policy": {
+                "affinity": "migratable"
+            },
+            "quota": {
+                "id": "985f52c6-9fa4-11ef-a66b-00163e4da590"
+            },
+            "reported_devices": [],
+            "run_once": false,
+            "sessions": [],
+            "small_icon": {
+                "href": "/ovirt-engine/api/icons/baa07274-de0b-27ba-4642-fa392ff9f0aa",
+                "id": "baa07274-de0b-27ba-4642-fa392ff9f0aa"
+            },
+            "snapshots": [],
+            "sso": {
+                "methods": [
+                    {
+                        "id": "guest_agent"
+                    }
+                ]
+            },
+            "start_paused": false,
+            "start_time": "2024-12-20 19:50:21.773000+05:00",
+            "stateless": false,
+            "statistics": [],
+            "status": "up",
+            "stop_time": "2024-12-20 19:49:49.043000+05:00",
+            "storage_error_resume_behaviour": "auto_resume",
+            "tags": [],
+            "template": {
+                "href": "/ovirt-engine/api/templates/00000000-0000-0000-0000-000000000000",
+                "id": "00000000-0000-0000-0000-000000000000"
+            },
+            "time_zone": {
+                "name": "Asia/Tashkent"
+            },
+            "type": "server",
+            "usb": {
+                "enabled": false
+            },
+            "virtio_scsi_multi_queues_enabled": false,
+            "watchdogs": []
+        }
+    ]
+}
