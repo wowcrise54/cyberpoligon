@@ -34,7 +34,7 @@ const Home = () => {
             setLoading(true);
 
             // Получение данных из /vms/raw
-            const rawResponse = await fetch("http://192.168.0.43/api/vms/raw/");
+            const rawResponse = await fetch("https://192.168.0.43/api/vms/raw/");
             if (!rawResponse.ok) {
                 throw new Error(`Ошибка загрузки из /vms/raw: ${rawResponse.statusText}`);
             }
@@ -43,7 +43,7 @@ const Home = () => {
             setVms(rawData);
 
             // Обновление данных через /vms
-            const updatedResponse = await fetch("http://192.168.0.43/api/vms/");
+            const updatedResponse = await fetch("https://192.168.0.43/api/vms/");
             if (!updatedResponse.ok) {
                 throw new Error(`Ошибка обновления из /vms: ${updatedResponse.statusText}`);
             }
