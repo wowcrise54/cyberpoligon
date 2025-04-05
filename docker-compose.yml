@@ -3,7 +3,8 @@ networks:
 
 services:
   postgres:
-    build: .
+    build:
+      context: ./database
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-myuser}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mypassword}
