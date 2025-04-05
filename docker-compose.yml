@@ -2,6 +2,18 @@ networks:
   dev:
 
 services:
+  postgres:
+    build: .
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-myuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mypassword}
+      POSTGRES_DB: ${POSTGRES_DB:-mydatabase}
+      PGDATA: ${PGDATA:-/var/lib/postgresql/data/pgdata}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - ${LOCAL_PG_DATA:-./pgdata}:${PGDATA:-/var/lib/postgresql/data/pgdata}
+
   nginx:
     image: nginx:stable-alpine
     ports:
