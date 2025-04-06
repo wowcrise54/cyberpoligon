@@ -42,5 +42,22 @@
     justify-content: left;
 }
 
+.menu-item {
+    width: 100%;
+}
+
+.menu-item.active {
+    width: 100%;
+}
+/* Применяем стиль к кнопке внутри пункта меню */
+.menu-item .button {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  /* Если пункт меню выбран (активный), задаём другой фон */
+  .menu-item.active .button {
+    background-color: var(--g-color-private-brand-300); /* Пример: синий фон для выбранного пункта */
+  }
+  
 
 

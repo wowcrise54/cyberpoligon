@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ThemeProvider } from '@gravity-ui/uikit';
+import { ThemeProvider, Toaster, ToasterProvider } from '@gravity-ui/uikit';
 import '@gravity-ui/uikit/styles/styles.css';
 import './styles.css';
 import App from './App';
@@ -11,11 +11,15 @@ const Main = () => {
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === 'dark' ? 'light' : 'dark'));
   };
+  const toaster = new Toaster();
 
   return (
-    <ThemeProvider theme={theme}>
-      <App theme={theme} toggleTheme={toggleTheme} />
-    </ThemeProvider>
+    <ToasterProvider toaster={toaster}>
+      <ThemeProvider theme={theme}>
+        <App theme={theme} toggleTheme={toggleTheme} />
+      </ThemeProvider>
+    </ToasterProvider>
+
   );
 };
 
