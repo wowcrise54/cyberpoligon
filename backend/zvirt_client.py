@@ -1,6 +1,6 @@
 import os
 import json
-import ansible_runner
+# import ansible_runner
 
 def get_vms(playbook_path="ansible/test.yml", output_path="json/vms_formatted.json"):
     """

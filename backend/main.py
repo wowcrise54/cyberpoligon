@@ -1,5 +1,6 @@
 from typing import Optional
 import os
+from semaphore_api.create_task import run_playbook_by_name
 from fastapi.responses import JSONResponse
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -30,6 +31,14 @@ class VMConfig(BaseModel):
     os_type: Optional[str] = None
     disk_size_gb: Optional[int] = None  # Необязательный параметр
     template_id: str
+
+class RunPlaybookRequest(BaseModel):
+    project_id: int
+    template_id: int
+    debug: bool = False
+    dry_run: bool = False
+    extra_vars: dict = {}
+    limit: str = ""
 
 @app.post("/create_vm/")
 async def create_vm(config: VMConfig):
@@ -72,3 +81,11 @@ async def get_vms_raw():
     except Exception as e:
         print(f"Ошибка в get_vms_raw: {e}")
         raise HTTPException(status_code=500, detail="Ошибка при чтении данных")
+    
+@app.api_route("/run_playbook", methods=["GET", "POST"])
+def run_playbook_endpoint(template_name: str):
+    try:
+        result = run_playbook_by_name(template_name)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
