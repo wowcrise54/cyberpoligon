@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Text, Button, Select, Loader } from '@gravity-ui/uikit';
+import { Text, TextInput, Button, Select, Loader, Switch } from '@gravity-ui/uikit';
 import './User.css';
 import Scripts from "./Scripts";
 
@@ -8,26 +8,29 @@ import Scripts from "./Scripts";
 const fakeVms = [
   {
     id: "1",
-    name: "Ubuntu 24.04",
-    os_type: "windows",
+    name: "Windows Server 2016",
+    os_type: "Windows",
     cpu_cores: 4,
     memory_gb: 8,
+    ssd: 512,
     isTurnedOn: true,
   },
   {
     id: "2",
-    name: "Test VM 2",
-    os_type: "ubuntu",
+    name: "Ubuntu 24.04",
+    os_type: "Ubuntu",
     cpu_cores: 2,
     memory_gb: 4,
+    ssd: 256,
     isTurnedOn: false,
   },
   {
     id: "3",
-    name: "Test VM 3",
-    os_type: "debian",
+    name: "Debian",
+    os_type: "Debian",
     cpu_cores: 8,
     memory_gb: 16,
+    ssd: 1024,
     isTurnedOn: false,
   }
 ];
@@ -70,47 +73,67 @@ const VMSettings = () => {
   }
 
   return (
-    <div className="vm-settings">
-      <Text variant="display-1">Настройки виртуальной машины {vm.name}</Text>
-      
-      <div className="vm-info">
-        <Text variant="body-1">Операционная система: {vm.os_type}</Text>
-        <Text variant="body-1">Процессор: {vm.cpu_cores} ядра</Text>
-        <Text variant="body-1">Оперативная память: {vm.memory_gb} ГБ</Text>
-        <Text variant="body-1">
-          Состояние: {isTurnedOn ? "Включена" : "Выключена"}
-        </Text>
+    <div className="create">
+      <Text variant="display-1">{vm.name}</Text>
+
+      <div className="mgt">
+        <Text variant="header-1">Характеристики виртуальной машины</Text>
+      </div>
+      <div className="option">
+          <Text variant="body-2">Операционная система</Text>
+          <TextInput
+              style={{ width: "300px" }}
+              defaultValue={vm.os_type}
+              disabled
+          />
+        </div>
+
+
+      <div className="option">
+        <Text variant="body-2">Количество ядер процессора</Text>
+        <TextInput
+            style={{ width: "300px" }}
+            type="number"
+            placeholder="Введите количество ядер"
+            defaultValue={vm.cpu_cores}
+        />
       </div>
 
-      <div className="vm-scripts">
-        <Text variant="body-2">Добавить скрипт</Text>
-        <Select
-          multiple={true}
-          size="m"
-          placeholder="Выберите нужные скрипты"
-          width={250}
-          style={{ marginTop: '8px' }}
-        >
-          <Select.Option value="1">Создать пользователя</Select.Option>
-          <Select.Option value="2">Сделать что-то</Select.Option>
-          <Select.Option value="3">Установить приложение</Select.Option>
-          <Select.Option value="4">Создать что-то</Select.Option>
-        </Select>
+      <div className="option">
+        <Text variant="body-2">Количество оперативной памяти</Text>
+        <TextInput
+            style={{ width: "300px" }}
+            type="number"
+            placeholder="Введите количество оперативной памяти"
+            defaultValue={vm.memory_gb}
+        />
       </div>
 
-      <div className="vm-actions" style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-        <Button view="action" size="l" onClick={() => navigate(-1)}>
-          <Text variant="body-2">Назад</Text>
-        </Button>
-        <Button
-          view={isTurnedOn ? "outlined-danger" : "outlined-success"}
+      <div className="option">
+        <Text variant="body-2">Обьем жесткого диска</Text>
+        <TextInput
+            style={{ width: "300px" }}
+            type="number"
+            placeholder="Введите объем жесткого диска"
+            defaultValue={vm.ssd}
+        />
+      </div>
+
+      <div className="option">
+        <Text variant="body-2">Состояние </Text>
+        <Switch
+          style={{ width: "300px" }}
           size="l"
-          onClick={handleToggle}
+          checked={isTurnedOn}
+          onChange={(e) => setIsTurnedOn(e.target.checked)}
         >
-          <Text variant="body-2">
-            {isTurnedOn ? "Выключить" : "Включить"}
-          </Text>
-        </Button>
+          {isTurnedOn ? "Включена" : "Выключена"}
+        </Switch>
+      </div>
+
+      
+      <div className="mgt">
+        <Text variant="header-1">Доступные скрипты</Text>
       </div>
       <Scripts/>
     </div>

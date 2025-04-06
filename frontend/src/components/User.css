@@ -17,8 +17,13 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 20px;
-    width: 550px;
+    margin-top: 15px;
+    width: 600px;
+}
+
+.mgt {
+    display: flex;
+    margin-top: 50px;
 }
 
 .card-container {
