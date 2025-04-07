@@ -8,7 +8,7 @@ const Registration = () => {
   const handleRegistration = (e) => {
     e.preventDefault();
     // Добавьте логику регистрации, например, отправку данных на сервер
-    navigate('/Auth');
+    navigate('/Sign_in');
   };
 
   return (
