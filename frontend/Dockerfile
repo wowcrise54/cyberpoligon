@@ -19,5 +19,5 @@
     COPY --from=build nginx.conf /etc/nginx/conf.d/default.conf
     
     # Открываем порт и запускаем Nginx
-    EXPOSE 3000
+    EXPOSE 5173
     CMD ["nginx", "-g", "daemon off;"]

@@ -11,7 +11,7 @@ const initialData = [
   { id: 2, Название: "Удаление пользователя", Состояние: "Удаляется", Статус: "Установлен" },
   { id: 3, Название: "Скрипт какой-то", Состояние: "Устанавливается", Статус: "Установлен" },
   { id: 4, Название: "Скрипт какой-то", Состояние: "Ошибка: описание", Статус: "Установлен" },
-  { id: 5, Название: "Скрипт какой-то", Состояние: "-", Статус: "Установлен" },
+  { id: 5, Название: "apt_install.yml", Состояние: "-", Статус: "Установлен" },
   { id: 6, Название: "Скрипт какой-то", Состояние: "-", Статус: "Установлен" },
   { id: 7, Название: "Скрипт какой-то", Состояние: "-", Статус: "Установлен" },
   { id: 8, Название: "Скрипт какой-то", Состояние: "Ошибка: описание", Статус: "Установлен" },
@@ -27,20 +27,59 @@ function ScriptsTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
-  const handleInstall = (item) => {
+  const handleInstall = async (item) => {
+    // 1. Отмечаем, что начинается процесс установки
     const newData = data.map((row) =>
-      row.id === item.id ? { ...row, Статус: "Установлен" } : row
+      row.id === item.id ? { ...row, Состояние: "Устанавливается" } : row
     );
     setData(newData);
-
-    toaster.add({
-      name: item.Название,
-      title: item.Название,
-      content: "Скрипт установлен",
-      theme: "success",
-      autoHiding: 5000,
-      
-    });
+  
+    try {
+      // 2. Выполняем запрос к эндпоинту /run_playbook
+      const response = await fetch(
+        `http://127.0.0.1:8000/run_playbook?template_name=${encodeURIComponent(item.Название)}`,
+        { method: "GET" }
+      );
+  
+      if (!response.ok) {
+        // Если сервер вернул ошибку, парсим текст ошибки
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Ошибка запуска плейбука");
+      }
+  
+      const result = await response.json();
+      console.log("Плейбук запущен:", result);
+  
+      // 3. Обновляем состояние строки как успешно установленное
+      const updatedData = data.map((row) =>
+        row.id === item.id ? { ...row, Состояние: "-", Статус: "Установлен" } : row
+      );
+      setData(updatedData);
+  
+      toaster.add({
+        name: item.Название,
+        title: item.Название,
+        content: "Скрипт успешно установлен на ВМ",
+        theme: "success",
+        autoHiding: 5000,
+      });
+    } catch (error) {
+      console.error("Ошибка при установке плейбука:", error);
+  
+      // 4. При ошибке отображаем её в таблице
+      const updatedData = data.map((row) =>
+        row.id === item.id ? { ...row, Состояние: `Ошибка: ${error.message}`, Статус: "Установлен" } : row
+      );
+      setData(updatedData);
+  
+      toaster.add({
+        name: item.Название,
+        title: item.Название,
+        content: `Ошибка установки: ${error.message}`,
+        theme: "danger",
+        autoHiding: 5000,
+      });
+    }
   };
 
   const handleDelete = (item) => {
