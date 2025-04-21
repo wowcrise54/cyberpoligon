@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { RadioButton, Text } from '@gravity-ui/uikit';
-import SignInForm from "./Auth";
-import RegistrationForm from "./Registration";
+import Auth from "./Auth";
+import Registration from "./Registration";
 import '../styles.css';
 import './Sign.css';
 
@@ -21,7 +21,7 @@ const Sign_in = () => {
         </RadioButton>
         {/* Используем key, чтобы React пересоздавал форму при переключении */}
         <div key={selectedOption}>
-          {selectedOption === "1" ? <SignInForm /> : <RegistrationForm />}
+          {selectedOption === "1" ? <Auth /> : <Registration />}
         </div>
       </form>
     </div>
