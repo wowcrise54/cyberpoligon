@@ -1,81 +1,132 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Icon, Table, withTableActions } from "@gravity-ui/uikit";
-import {toaster} from "@gravity-ui/uikit/toaster-singleton";
+import { toaster } from "@gravity-ui/uikit/toaster-singleton";
 import { TrashBin, ArrowDownToLine } from "@gravity-ui/icons";
 import ScriptInfo from "./ScriptInfo";
 
 const MyTable = withTableActions(Table);
 
 const initialData = [
-  { id: 1, Название: "Создание пользователя", Состояние: "-", Статус: "Установлен"},
-  { id: 2, Название: "Удаление пользователя", Состояние: "Удаляется", Статус: "Установлен" },
-  { id: 3, Название: "Скрипт какой-то", Состояние: "Устанавливается", Статус: "Установлен" },
-  { id: 4, Название: "Скрипт какой-то", Состояние: "Ошибка: описание", Статус: "Установлен" },
-  { id: 5, Название: "apt_install.yml", Состояние: "-", Статус: "Установлен" },
-  { id: 6, Название: "Скрипт какой-то", Состояние: "-", Статус: "Установлен" },
-  { id: 7, Название: "Скрипт какой-то", Состояние: "-", Статус: "Установлен" },
-  { id: 8, Название: "Скрипт какой-то", Состояние: "Ошибка: описание", Статус: "Установлен" },
-  { id: 9, Название: "Скрипт какой-то", Состояние: "Ошибка: описание", Статус: "Установлен" },
-  { id: 10, Название: "Скрипт какой-то", Состояние: "Ошибка: описание", Статус: "Установлен" },
+  { id: 1, Название: "Создание пользователя", Состояние: "-", Статус: "Не установлен" },
+  { id: 2, Название: "Удаление пользователя", Состояние: "-", Статус: "Не установлен" },
+  { id: 3, Название: "apt_install.yml", Состояние: "-", Статус: "Не установлен" },
 ];
 
-const columns = [{ id: "id" }, { id: "Название" }, { id: "Состояние" }, { id: "Статус" }];
+const columns = [
+  { id: "id", title: "#" },
+  { id: "Название", title: "Название скрипта" },
+  { id: "Состояние", title: "Состояние" },
+  { id: "Статус", title: "Статус" },
+];
 
 function ScriptsTable() {
   const [data, setData] = useState(initialData);
-  const [selectedIds, setSelectedIds] = useState([1]);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
   const handleInstall = async (item) => {
-    // 1. Отмечаем, что начинается процесс установки
-    const newData = data.map((row) =>
-      row.id === item.id ? { ...row, Состояние: "Устанавливается" } : row
+    // 1) Отмечаем "Устанавливается"
+    setData((prev) =>
+      prev.map((r) =>
+        r.id === item.id ? { ...r, Состояние: "Устанавливается" } : r
+      )
     );
-    setData(newData);
-  
+
     try {
-      // 2. Выполняем запрос к эндпоинту /run_playbook
-      const response = await fetch(
-        `http://127.0.0.1:8000/run_playbook?template_name=${encodeURIComponent(item.Название)}`,
-        { method: "GET" }
-      );
-  
-      if (!response.ok) {
-        // Если сервер вернул ошибку, парсим текст ошибки
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Ошибка запуска плейбука");
-      }
-  
-      const result = await response.json();
-      console.log("Плейбук запущен:", result);
-  
-      // 3. Обновляем состояние строки как успешно установленное
-      const updatedData = data.map((row) =>
-        row.id === item.id ? { ...row, Состояние: "-", Статус: "Установлен" } : row
-      );
-      setData(updatedData);
-  
-      toaster.add({
-        name: item.Название,
-        title: item.Название,
-        content: "Скрипт успешно установлен на ВМ",
-        theme: "success",
-        autoHiding: 5000,
+      // 2) Создаём задачу
+      const createRes = await fetch("http://192.168.220.198:8000/run_playbook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ template_name: item.Название }),
       });
+      if (!createRes.ok) {
+        const err = await createRes.json();
+        throw new Error(err.detail || `HTTP ${createRes.status}`);
+      }
+      const { task_id } = await createRes.json();
+
+      // 3) Polling статуса
+      const pollInterval = 3000;
+      const timer = setInterval(async () => {
+        try {
+          const statusRes = await fetch(
+            `http://192.168.220.198:8000/run_playbook/status?task_id=${task_id}`
+          );
+          if (!statusRes.ok) {
+            const err = await statusRes.json();
+            throw new Error(err.detail || `HTTP ${statusRes.status}`);
+          }
+          const { status, output } = await statusRes.json();
+          if (status === "pending" || status === "running") {
+            return; // ждём дальше
+          }
+
+          clearInterval(timer);
+
+          if (status === "success") {
+            setData((prev) =>
+              prev.map((r) =>
+                r.id === item.id
+                  ? { ...r, Состояние: "-", Статус: "Установлен" }
+                  : r
+              )
+            );
+            toaster.add({
+              name: item.Название,
+              title: item.Название,
+              content: "Скрипт успешно установлен",
+              theme: "success",
+              autoHiding: 5000,
+            });
+          } else {
+            const errMsg = output?.error || JSON.stringify(output);
+            setData((prev) =>
+              prev.map((r) =>
+                r.id === item.id
+                  ? { ...r, Состояние: `Ошибка: ${errMsg}`, Статус: "Не установлен" }
+                  : r
+              )
+            );
+            toaster.add({
+              name: item.Название,
+              title: item.Название,
+              content: `Ошибка установки: ${errMsg}`,
+              theme: "danger",
+              autoHiding: 5000,
+            });
+          }
+        } catch (e) {
+          clearInterval(timer);
+          setData((prev) =>
+            prev.map((r) =>
+              r.id === item.id
+                ? { ...r, Состояние: `Ошибка: ${e.message}`, Статус: "Не установлен" }
+                : r
+            )
+          );
+          toaster.add({
+            name: item.Название,
+            title: item.Название,
+            content: `Ошибка polling: ${e.message}`,
+            theme: "danger",
+            autoHiding: 5000,
+          });
+        }
+      }, pollInterval);
     } catch (error) {
-      console.error("Ошибка при установке плейбука:", error);
-  
-      // 4. При ошибке отображаем её в таблице
-      const updatedData = data.map((row) =>
-        row.id === item.id ? { ...row, Состояние: `Ошибка: ${error.message}`, Статус: "Установлен" } : row
+      console.error("Init error:", error);
+      setData((prev) =>
+        prev.map((r) =>
+          r.id === item.id
+            ? { ...r, Состояние: `Ошибка: ${error.message}`, Статус: "Не установлен" }
+            : r
+        )
       );
-      setData(updatedData);
-  
       toaster.add({
         name: item.Название,
         title: item.Название,
-        content: `Ошибка установки: ${error.message}`,
+        content: `Ошибка запуска: ${error.message}`,
         theme: "danger",
         autoHiding: 5000,
       });
@@ -83,12 +134,11 @@ function ScriptsTable() {
   };
 
   const handleDelete = (item) => {
-    const newData = data.map((row) =>
-      row.id === item.id ? { ...row, Статус: "Отсутствует" } : row
+    setData((prev) =>
+      prev.map((r) =>
+        r.id === item.id ? { ...r, Статус: "Отсутствует" } : r
+      )
     );
-    setData(newData);
-
-    // Вызываем метод toaster.add(...)
     toaster.add({
       name: item.Название,
       title: item.Название,

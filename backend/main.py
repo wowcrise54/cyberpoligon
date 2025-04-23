@@ -1,6 +1,6 @@
 from typing import Optional
 import os
-from semaphore_api.create_task import run_playbook_by_name
+from semaphore_api.create_task import *
 from fastapi.responses import JSONResponse
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -32,13 +32,8 @@ class VMConfig(BaseModel):
     disk_size_gb: Optional[int] = None  # Необязательный параметр
     template_id: str
 
-class RunPlaybookRequest(BaseModel):
-    project_id: int
-    template_id: int
-    debug: bool = False
-    dry_run: bool = False
-    extra_vars: dict = {}
-    limit: str = ""
+class PlaybookRequest(BaseModel):
+    template_name: str
 
 @app.post("/create_vm/")
 async def create_vm(config: VMConfig):
@@ -82,10 +77,46 @@ async def get_vms_raw():
         print(f"Ошибка в get_vms_raw: {e}")
         raise HTTPException(status_code=500, detail="Ошибка при чтении данных")
     
-@app.api_route("/run_playbook", methods=["GET", "POST"])
-def run_playbook_endpoint(template_name: str):
+@app.post("/run_playbook")
+async def create_playbook_task(req: PlaybookRequest):
+    """
+    Создаём задачу запуска плейбука и сразу возвращаем task_id.
+    """
+    template_name = req.template_name
     try:
-        result = run_playbook_by_name(template_name)
-        return result
+        template_id = find_template_id_by_name(template_name)
+        if not template_id:
+            raise HTTPException(status_code=404, detail="Шаблон не найден")
+
+        # подготавливаем полезную нагрузку
+        inventory = get_inventory()
+        environment = get_environment()
+        repos = get_repositories()
+        payload = {
+            "template_id": template_id,
+            "environment_id": extract_id(environment),
+            "inventory_id": extract_id(inventory),
+            "repository_ids": [r["id"] for r in repos if isinstance(r, dict)],
+        }
+
+        task = create_task(payload)
+        return {"task_id": task["id"]}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/run_playbook/status")
+async def playbook_status(task_id: int):
+    """
+    Возвращаем статус (pending|running|success|failure) и, если завершено, логи.
+    """
+    try:
+        # Получим мета-инфо и вывод
+        status_info = get_task_status(task_id)      # новый метод в create_task.py
+        output = None
+        if status_info.get("status") in ("success", "failure"):
+            output = get_task_output(task_id)
+        return {"status": status_info["status"], "output": output}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

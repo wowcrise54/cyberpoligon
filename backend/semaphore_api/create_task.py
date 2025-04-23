@@ -2,7 +2,7 @@ import requests
 import time
 
 # Конфигурация для доступа к API Semaphore (захардкоженные параметры)
-BASE_URL = "http://192.168.220.197:3000/api"  # адрес сервера Semaphore
+BASE_URL = "http://192.168.220.198:3000/api"  # адрес сервера Semaphore
 PROJECT_ID = 1
 TEMPLATE_ID = 1
 TOKEN = "6frt9sxqvgwngkfxix7solbdja1bsm2nruc09p9pzwy="  # ваш API-токен
@@ -110,3 +110,9 @@ def run_playbook_by_name(template_name: str):
     output = get_task_output(task_id)
     
     return {"task_id": task_id, "output": output}
+
+def get_task_status(task_id: int):
+    url = f"{BASE_URL}/project/{PROJECT_ID}/tasks/{task_id}"
+    response = requests.get(url, headers=HEADERS)
+    response.raise_for_status()
+    return response.json()  # в JSON ожидаем поле "status"
