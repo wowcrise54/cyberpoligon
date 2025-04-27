@@ -1,30 +1,78 @@
 networks:
   dev:
 
+volumes:
+  db_data:
+
 services:
+  # Postgres
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: qweasdZXC123
+      POSTGRES_DB: Npis
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - dev
+
+  # Основной API (FastAPI + Alembic) — из ./database/Dockerfile
+  backend:
+    build:
+      context: .                       # корень репозитория
+      dockerfile: database/Dockerfile  # ваш Dockerfile из папки ./database
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_USER: postgres
+      DB_PASS: qweasdZXC123
+      DB_NAME: Npis
+    depends_on:
+      - db
+    networks:
+      - dev
+
+  # Отдельный сервис на основе Dockerfile в папке ./backend
+  worker:
+    build:
+      context: ./backend               # контекст — папка ./backend
+      dockerfile: Dockerfile           # точно используем ./backend/Dockerfile
+    # прокиньте сюда нужные ENV, порты или команду запуска вашего worker'а:
+    # environment:
+    #   SOME_VAR: value
+    # command: ["python", "worker.py"]
+    depends_on:
+      - db
+    networks:
+      - dev
+
+  # Фронтенд
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - dev
+
+  # Nginx
   nginx:
     image: nginx:stable-alpine
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - './nginx.conf:/etc/nginx/nginx.conf'
-      - '/etc/letsencrypt:/etc/letsencrypt'
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - backend
       - frontend
-    networks:
-      - dev
-    
-
-  backend:
-    build:
-      context: ./backend
-    networks:
-      - dev
-
-  frontend:
-    build:
-      context: ./frontend
     networks:
       - dev
