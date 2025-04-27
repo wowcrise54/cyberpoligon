@@ -1,25 +1,30 @@
-# ── Dockerfile ──
-FROM python:3.10-slim
+FROM python:3.11.9-slim
 
-# 1) задаём рабочую директорию
 WORKDIR /app
 
-# 2) копируем только файл с зависимостями из backend
+# 1) Скопировали зависимости
 COPY backend/requirements.txt ./requirements.txt
 
-# 3) устанавливаем зависимости
-RUN pip install --no-cache-dir -r requirements.txt
+# 2) Установили netcat и все Python-библиотеки (включая alembic)
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends netcat-openbsd \
+ && rm -rf /var/lib/apt/lists/* \
+ && pip install --no-cache-dir -r requirements.txt \
+ && pip install --no-cache-dir alembic
 
-# 4) копируем весь код приложения
+# **копируем скрипты миграций**
+COPY migrations/ ./migrations
+
+# копируем остальной код
 COPY database/ ./database
+COPY entrypoint.sh ./
 
-# 5) задаём переменные окружения для подключения к БД
+# 4) Переменные окружения для подключения к БД
 ENV DB_HOST=db \
     DB_PORT=5432 \
     DB_USER=postgres \
     DB_PASS=qweasdZXC123 \
     DB_NAME=Npis
 
-# 6) при старте контейнера сначала прогоняем миграции через Alembic, затем запускаем FastAPI
-CMD alembic -c database/alembic.ini upgrade head && \
-    uvicorn database.router:app --host 0.0.0.0 --port 8000
+# 5) Запускаем наш скрипт
+ENTRYPOINT ["./entrypoint.sh"]

@@ -5,7 +5,6 @@ volumes:
   db_data:
 
 services:
-  # Postgres
   db:
     image: postgres:15-alpine
     restart: always
@@ -17,12 +16,13 @@ services:
       - db_data:/var/lib/postgresql/data
     networks:
       - dev
+    ports:
+      - "5433:5432"
 
-  # Основной API (FastAPI + Alembic) — из ./database/Dockerfile
   backend:
     build:
-      context: .                       # корень репозитория
-      dockerfile: database/Dockerfile  # ваш Dockerfile из папки ./database
+      context: .
+      dockerfile: database/Dockerfile
     ports:
       - "8000:8000"
     environment:
@@ -36,21 +36,17 @@ services:
     networks:
       - dev
 
-  # Отдельный сервис на основе Dockerfile в папке ./backend
   worker:
     build:
-      context: ./backend               # контекст — папка ./backend
-      dockerfile: Dockerfile           # точно используем ./backend/Dockerfile
-    # прокиньте сюда нужные ENV, порты или команду запуска вашего worker'а:
-    # environment:
-    #   SOME_VAR: value
-    # command: ["python", "worker.py"]
+      context: ./backend
+      dockerfile: Dockerfile
     depends_on:
       - db
     networks:
       - dev
+    ports:
+      - "8100:8000"
 
-  # Фронтенд
   frontend:
     build:
       context: ./frontend
@@ -62,7 +58,6 @@ services:
     networks:
       - dev
 
-  # Nginx
   nginx:
     image: nginx:stable-alpine
     ports:

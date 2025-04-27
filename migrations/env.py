@@ -1,7 +1,7 @@
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from database.database import Base, DATABASE_URL
+from database.db_config import Base, DATABASE_URL
 import sys
 from os.path import abspath, dirname
 from database.users.models import Users
