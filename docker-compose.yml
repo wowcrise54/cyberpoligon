@@ -1,19 +1,62 @@
 networks:
   dev:
 
+volumes:
+  db_data:
+
 services:
-  postgres:
-    build:
-      context: ./database
+  db:
+    image: postgres:15-alpine
+    restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-myuser}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mypassword}
-      POSTGRES_DB: ${POSTGRES_DB:-mydatabase}
-      PGDATA: ${PGDATA:-/var/lib/postgresql/data/pgdata}
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: qweasdZXC123
+      POSTGRES_DB: Npis
     volumes:
-      - ${LOCAL_PG_DATA:-./pgdata}:${PGDATA:-/var/lib/postgresql/data/pgdata}
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - dev
+    ports:
+      - "5433:5432"
+
+  backend:
+    build:
+      context: .
+      dockerfile: database/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_USER: postgres
+      DB_PASS: qweasdZXC123
+      DB_NAME: Npis
+    depends_on:
+      - db
+    networks:
+      - dev
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    networks:
+      - dev
+    ports:
+      - "8100:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - dev
 
   nginx:
     image: nginx:stable-alpine
@@ -21,25 +64,10 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - './nginx.conf:/etc/nginx/nginx.conf'
-      - '/etc/letsencrypt:/etc/letsencrypt'
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - backend
       - frontend
-    networks:
-      - dev
-    
-
-  backend:
-    build:
-      context: ./backend
-    ports:
-      - 8000:8000
-    networks:
-      - dev
-
-  frontend:
-    build:
-      context: ./frontend
     networks:
       - dev

@@ -1,30 +1,92 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, TextInput, Text } from '@gravity-ui/uikit';
 
 const Registration = () => {
   const navigate = useNavigate();
+  
+  // Состояния для хранения введенных значений
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleRegistration = (e) => {
+  const handleRegistration = async (e) => {
     e.preventDefault();
-    // Добавьте логику регистрации, например, отправку данных на сервер
-    navigate('/Sign_in');
+
+    // Собираем данные в объект
+    const userData = {
+      first_name: firstName,
+      last_name: lastName,
+      email: email,
+      password: password,
+    };
+
+    try {
+      const response = await fetch("http://localhost:8000/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+      
+      if (response.ok) {
+        navigate("/Sign_in");
+      } else {
+        const result = await response.json();
+        setError(result.detail || "Ошибка регистрации");
+      }
+    } catch (error) {
+      console.error("Ошибка при запросе:", error);
+      setError("Ошибка соединения с сервером");
+    }
   };
 
   return (
     <div className="reg">
       <div className="input-box">
-        <TextInput type="text" placeholder="Имя" size="xl" required />
+        <TextInput
+          type="text"
+          placeholder="Имя"
+          size="xl"
+          required
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+        />
       </div>
       <div className="input-box">
-        <TextInput type="text" placeholder="Фамилия" size="xl" required />
+        <TextInput
+          type="text"
+          placeholder="Фамилия"
+          size="xl"
+          required
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+        />
       </div>
       <div className="input-box">
-        <TextInput type="email" placeholder="Электронная почта" size="xl" required />
+        <TextInput
+          type="email"
+          placeholder="Электронная почта"
+          size="xl"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
       </div>
       <div className="input-box">
-        <TextInput type="password" placeholder="Пароль" size="xl" required />
+        <TextInput
+          type="password"
+          placeholder="Пароль"
+          size="xl"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
       </div>
+      {error && <div style={{ color: "red" }}>{error}</div>}
       <Button view="action" size="l" type="submit" width="max" onClick={handleRegistration}>
         <Text variant="body-2">Зарегистрироваться</Text>
       </Button>
