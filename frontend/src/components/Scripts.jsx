@@ -35,7 +35,7 @@ function ScriptsTable() {
 
     try {
       // 2) Создаём задачу
-      const createRes = await fetch("http://192.168.220.198:8000/run_playbook", {
+      const createRes = await fetch("http://192.168.220.197:8000/run_playbook", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ template_name: item.Название }),
@@ -51,7 +51,7 @@ function ScriptsTable() {
       const timer = setInterval(async () => {
         try {
           const statusRes = await fetch(
-            `http://192.168.220.198:8000/run_playbook/status?task_id=${task_id}`
+            `http://192.168.220.197:8000/run_playbook/status?task_id=${task_id}`
           );
           if (!statusRes.ok) {
             const err = await statusRes.json();
