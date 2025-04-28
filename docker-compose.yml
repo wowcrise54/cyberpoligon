@@ -3,15 +3,18 @@ networks:
 
 volumes:
   db_data:
+  semaphore_data:
 
 services:
   db:
     image: postgres:15-alpine
     restart: always
+    env_file:
+      - .env
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: qweasdZXC123
-      POSTGRES_DB: Npis
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_MULTIPLE_DATABASES: ${POSTGRES_MULTIPLE_DATABASES}
     volumes:
       - db_data:/var/lib/postgresql/data
     networks:
@@ -25,12 +28,14 @@ services:
       dockerfile: database/Dockerfile
     ports:
       - "8000:8000"
+    env_file:
+      - .env
     environment:
-      DB_HOST: db
-      DB_PORT: "5432"
-      DB_USER: postgres
-      DB_PASS: qweasdZXC123
-      DB_NAME: Npis
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
     depends_on:
       - db
     networks:
@@ -71,3 +76,30 @@ services:
       - frontend
     networks:
       - dev
+
+  semaphore:
+    ports:
+        - 3000:3000
+    image: semaphoreui/semaphore:v2.13.15
+    entrypoint: ["/init.sh"]
+    env_file:
+        - .env
+    environment:
+        SEMAPHORE_DB_DIALECT: ${SEMAPHORE_DB_DIALECT}
+        SEMAPHORE_DB_HOST: ${SEMAPHORE_DB_HOST}
+        SEMAPHORE_DB_NAME: ${SEMAPHORE_DB_NAME}
+        SEMAPHORE_DB_USER: ${SEMAPHORE_DB_USER}
+        SEMAPHORE_DB_PASS: ${SEMAPHORE_DB_PASS}
+        SEMAPHORE_DB_PORT: ${SEMAPHORE_DB_PORT}
+        SEMAPHORE_ADMIN: ${SEMAPHORE_ADMIN}
+        SEMAPHORE_ADMIN_PASSWORD: ${SEMAPHORE_ADMIN_PASSWORD}
+        SEMAPHORE_ADMIN_NAME: ${SEMAPHORE_ADMIN_NAME}
+        SEMAPHORE_ADMIN_EMAIL: ${SEMAPHORE_ADMIN_EMAIL}
+    volumes:
+        - semaphore_data:/var/lib/semaphore
+        - ./init.sh:/init.sh:ro
+    depends_on:
+        - db
+    networks:
+        - dev
+
