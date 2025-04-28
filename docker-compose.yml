@@ -80,7 +80,7 @@ services:
   semaphore:
     ports:
         - 3000:3000
-    image: image: semaphoreui/semaphore:v2.13.15-powershell7.5.0
+    image: semaphoreui/semaphore:v2.13.15-powershell7.5.0
     entrypoint: ["/init.sh"]
     env_file:
         - .env
