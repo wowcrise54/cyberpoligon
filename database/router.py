@@ -75,12 +75,11 @@ async def protected_route(current_user: Users = Depends(get_current_user)):
     return {"message": f"Доступ разрешён. Привет, {current_user.first_name}!"}
 
 
-# # Если потребуется создать таблицы в БД (однократно при запуске)
-# if __name__ == "__main__":
-#     import asyncio
-#     from db_config import engine, Base
+if __name__ == "__main__":
+    import asyncio
+    from db_config import engine, Base
 
-#     async def init_db():
-#         async with engine.begin() as conn:
-#             await conn.run_sync(Base.metadata.create_all)
-#     asyncio.run(init_db())
+    async def init_db():
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+    asyncio.run(init_db())
