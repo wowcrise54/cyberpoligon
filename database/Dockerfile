@@ -21,7 +21,7 @@ COPY entrypoint.sh ./
 
 # 4) Переменные окружения для подключения к БД
 ENV DB_HOST=db \
-    DB_PORT=5432 \
+    DB_PORT=5433 \
     DB_USER=postgres \
     DB_PASS=qweasdZXC123 \
     DB_NAME=Npis
