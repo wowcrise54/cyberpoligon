@@ -15,6 +15,11 @@ const Registration = () => {
   const handleRegistration = async (e) => {
     e.preventDefault();
 
+    if (!firstName.trim() || !lastName.trim() || !email.trim() || !password.trim()) {
+      setError("Пожалуйста, заполните все поля");
+      return;
+    }
+
     // Собираем данные в объект
     const userData = {
       first_name: firstName,
@@ -24,7 +29,7 @@ const Registration = () => {
     };
 
     try {
-      const response = await fetch("api/register", {
+      const response = await fetch("/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
