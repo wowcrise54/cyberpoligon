@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, TextInput, Text, Link } from '@gravity-ui/uikit';
+import { toaster } from "@gravity-ui/uikit/toaster-singleton";
+import { Button, TextInput, Text, Link, Loader } from '@gravity-ui/uikit';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -8,16 +9,21 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
+  const [isLoading, setIsLoading] = useState(false);
 
   // Обработчик авторизации без использования формы
   const handleAuth = async () => {
-
     if (!email.trim() || !password.trim()) {
-      setError("Пожалуйста, заполните все поля");
+      toaster.add({
+        title: "Ошибка",
+        content: "Пожалуйста, заполните все поля",
+        theme: "danger",
+        autoHiding: 5000,
+      });
       return;
     }
 
+    setIsLoading(true);
     console.log("handleAuth triggered:", { email, password });
     try {
       const response = await fetch("/api/login", {
@@ -30,14 +36,33 @@ const Auth = () => {
       console.log("Response data:", data);
       
       if (response.ok) {
-        localStorage.setItem("token", data.access_token);
+        sessionStorage.setItem("token", data.access_token);
+        sessionStorage.setItem(
+          "user",
+          JSON.stringify({
+            first_name: data.first_name,
+            last_name: data.last_name,
+          })
+        );
         navigate("/User");
       } else {
-        setError(data.detail || "Ошибка авторизации");
+        toaster.add({
+          title: "Ошибка",
+          content: data.detail || "Ошибка авторизации",
+          theme: "danger",
+          autoHiding: 5000,
+        });
       }
     } catch (err) {
       console.error("Ошибка при запросе на /login:", err);
-      setError("Ошибка соединения с сервером");
+      toaster.add({
+        title: "Ошибка",
+        content: "Ошибка соединения с сервером",
+        theme: "danger",
+        autoHiding: 5000,
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -66,11 +91,18 @@ const Auth = () => {
           <Text variant="body-1">Забыли пароль?</Text>
         </Link>
       </div>
-      {error && <div style={{ color: "red", marginTop: "10px" }}>{error}</div>}
       <div style={{ marginTop: "20px" }}>
-        {/* Привязываем обработчик клика напрямую */}
-        <Button onClick={handleAuth} view="action" size="l" width="max">
-          <Text variant="body-2">Войти</Text>
+        <Button
+          onClick={handleAuth}
+          view="action"
+          size="l"
+          width="max"
+          disabled={isLoading}
+        >
+          {isLoading
+            ? <Loader size="s" />
+            : <Text variant="body-2">Войти</Text>
+          }
         </Button>
       </div>
     </div>
