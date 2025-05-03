@@ -1,7 +1,11 @@
-import React from "react";
-import { UserLabel } from "@gravity-ui/uikit";
+// ProfileBtn.jsx
+import React from 'react';
+import { UserLabel } from '@gravity-ui/uikit';
+import { useNavigate } from 'react-router-dom';  // <-- импортируем
 
 export default function ProfileBtn() {
+  const navigate = useNavigate();              // <-- создаём навигатор
+
   // 1) Получаем строку из sessionStorage
   const userJson = sessionStorage.getItem("user");
 
@@ -23,7 +27,7 @@ export default function ProfileBtn() {
   return (
     <div>
       <UserLabel
-        onClick={() => alert("В разработке...")}
+        onClick={() => navigate('/User/me')}  // <-- вызываем
         type="person"
         size="m"
       >

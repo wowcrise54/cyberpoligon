@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Icon, Table, withTableActions } from "@gravity-ui/uikit";
+import { Icon, Table, withTableActions, Spin } from "@gravity-ui/uikit";
 import { toaster } from "@gravity-ui/uikit/toaster-singleton";
 import { TrashBin, ArrowDownToLine } from "@gravity-ui/icons";
 import ScriptInfo from "./ScriptInfo";
@@ -13,10 +13,10 @@ const initialData = [
 ];
 
 const columns = [
-  { id: "id", title: "#" },
-  { id: "Название", title: "Название скрипта" },
-  { id: "Состояние", title: "Состояние" },
-  { id: "Статус", title: "Статус" },
+  { id: "id", title: "#", align: "center"},
+  { id: "Название", title: "Название скрипта", align: "center" },
+  { id: "Состояние", title: "Состояние", align: "center" },
+  { id: "Статус", title: "Статус", align: "center" },
 ];
 
 function ScriptsTable() {
@@ -29,7 +29,7 @@ function ScriptsTable() {
     // 1) Отмечаем "Устанавливается"
     setData((prev) =>
       prev.map((r) =>
-        r.id === item.id ? { ...r, Состояние: "Устанавливается" } : r
+        r.id === item.id ? { ...r, Состояние: <Spin size="xs"/> } : r
       )
     );
 
@@ -136,7 +136,7 @@ function ScriptsTable() {
   const handleDelete = (item) => {
     setData((prev) =>
       prev.map((r) =>
-        r.id === item.id ? { ...r, Статус: "Отсутствует" } : r
+        r.id === item.id ? { ...r, Состояние: "-", Статус: "Отсутствует" } : r
       )
     );
     toaster.add({
