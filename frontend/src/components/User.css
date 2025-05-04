@@ -168,7 +168,7 @@
     display: flex;
     justify-content: space-evenly;
     align-items: center;
-    background-color: var(--g-color-background-generic);
+    background-color: var(--g-color-background-profile);
     border-radius: 8px;
     width: 600px;
     height: 70px;
