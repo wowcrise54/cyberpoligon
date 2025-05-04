@@ -1,0 +1,13 @@
+- name: Add user
+  hosts: test_debian 
+  become: true
+  vars:
+    username: Basical
+    # хеш генерируется локально при запуске плейбука:
+    user_password_hash: "{{ 'qweasdZXC123' | password_hash('sha512') }}"
+  tasks:
+    - name: Создать пользователя {{ username }} с паролем
+      ansible.builtin.user:
+        name: "{{ username }}"
+        password: "{{ user_password_hash }}"
+        create_home: yes

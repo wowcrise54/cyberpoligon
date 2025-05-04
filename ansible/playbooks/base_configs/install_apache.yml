@@ -1,0 +1,21 @@
+- name: Установка и настройка Apache на Ubuntu Server
+  hosts: test_debian
+  become: true
+  vars:
+    apache_pkg: apache2
+
+  tasks:
+    - name: Обновить кеш пакетов APT
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Установить {{ apache_pkg }}
+      ansible.builtin.apt:
+        name: "{{ apache_pkg }}"
+        state: present
+
+    - name: Запустить и включить сервис Apache
+      ansible.builtin.service:
+        name: "{{ apache_pkg }}"
+        state: started
+        enabled: yes

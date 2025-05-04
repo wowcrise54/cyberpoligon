@@ -1,0 +1,6 @@
+- name: Проверка доступности виртуалки
+  hosts: test_debian    # тот же хост, что прописан в inventory/hosts.yml
+  gather_facts: false
+  tasks:
+    - name: Пингуем хост модулем ping
+      ansible.builtin.ping:

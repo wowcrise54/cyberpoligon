@@ -1,0 +1,9 @@
+# Игнорирование виртуальных окружений Python
+venv/
+env/
+.venv/
+
+# Игнорирование файлов кэша Python
+__pycache__/
+*.py[cod]
+*$py.class

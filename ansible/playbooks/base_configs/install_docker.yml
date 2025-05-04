@@ -1,0 +1,65 @@
+---
+- name: Установка Docker и Docker Compose на Ubuntu Server
+  hosts: test_debian
+  become: true
+  tasks:
+    - name: Установить зависимости для Docker
+      ansible.builtin.apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg-agent
+          - software-properties-common
+        state: present
+        update_cache: yes
+
+    - name: Добавить GPG-ключ Docker
+      ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Добавить репозиторий Docker в APT
+      ansible.builtin.apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        state: present
+        filename: docker
+
+    - name: Установить пакеты Docker
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: latest
+        update_cache: yes
+
+    - name: Запустить и включить сервис Docker
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Создать группу docker, если её нет
+      ansible.builtin.group:
+        name: docker
+        state: present
+
+    - name: Добавить пользователя ubuntu в группу docker
+      ansible.builtin.user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Загрузить Docker Compose
+      ansible.builtin.get_url:
+        url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-{{ ansible_system | lower }}-{{ ansible_architecture }}
+        dest: /usr/local/bin/docker-compose
+        mode: 'u+x,g+x'
+
+    - name: Установить владельца и группу для docker-compose
+      ansible.builtin.file:
+        path: /usr/local/bin/docker-compose
+        owner: root
+        group: root
+        mode: 'u+x'
