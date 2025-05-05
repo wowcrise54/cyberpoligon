@@ -1,4 +1,4 @@
-# backend/database/router.py
+from typing import List
 from sqlalchemy.future import select
 from fastapi import APIRouter, HTTPException, Depends, Response, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,8 +7,10 @@ from passlib.context import CryptContext
 
 from database.session import get_session
 from database.users.models import Users
-from database.auth import create_access_token
+from database.auth import create_access_token, decode_token, blacklist_token
 from database.auth_dependencies import get_current_user
+from database.scripts.models import Script
+from semaphore_api.template import create_template
 
 router = APIRouter(tags=["auth"])
 
@@ -17,6 +19,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
+    
 
 
 class UserRegistration(BaseModel):
@@ -87,3 +90,57 @@ async def logout(
 
     # 4) возвращаем 204 No Content
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+class ScriptCreate(BaseModel):
+    name: str
+    path: str
+    description: str
+
+class ScriptOut(BaseModel):
+    id: int
+    name: str
+    path: str
+    description: str
+    template_id: int
+
+    class Config:
+        orm_mode = True
+
+@router.post("/scripts", response_model=ScriptOut, status_code=status.HTTP_201_CREATED, tags=["scripts"])
+async def add_script(payload: ScriptCreate, session: AsyncSession = Depends(get_session)):
+    # 1) Создаём шаблон в Semaphore
+    try:
+        tpl = create_template(
+            name=payload.name,
+            description=payload.description,
+            playbook_path=payload.path,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Semaphore error: {e}")
+
+    template_id = tpl.get("id")
+    if not template_id:
+        raise HTTPException(status_code=500, detail="Шаблон создан, но ID не вернулся")
+
+    # 2) Сохраняем в БД
+    new_script = Script(
+        name=payload.name,
+        path=payload.path,
+        description=payload.description,
+        template_id=template_id,
+    )
+    session.add(new_script)
+    try:
+        await session.commit()
+        await session.refresh(new_script)
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+
+    return new_script
+
+@router.get("/scripts", response_model=List[ScriptOut], tags=["scripts"])
+async def list_scripts(session: AsyncSession = Depends(get_session)):
+    result = await session.execute(select(Script))
+    scripts = result.scalars().all()
+    return scripts

@@ -12,18 +12,11 @@ RUN apt-get update \
  && pip install --no-cache-dir -r requirements.txt \
  && pip install --no-cache-dir alembic
 
-<<<<<<< HEAD
-# копируем остальной код
-COPY database/ ./
-COPY database/ ./database
-COPY migrations/ ./migrations
-=======
 # **копируем скрипты миграций**
 COPY migrations/ ./migrations
 
 # копируем остальной код
 COPY database/ ./database
->>>>>>> parent of 36874fa (add valid, reg/auth)
 COPY entrypoint.sh ./
 
 # 4) Переменные окружения для подключения к БД
