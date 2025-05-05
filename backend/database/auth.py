@@ -1,14 +1,17 @@
 from datetime import datetime, timedelta
-from jose import jwt, JWTError
+from jose import jwt
 
-# Настройки токена
-SECRET_KEY = "your_super_secret_key"  # Для продакшена используйте надежный, скрытый ключ
+SECRET_KEY = "your_super_secret_key"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 1
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 def create_access_token(data: dict) -> str:
-    """Создает JWT-токен с заданными данными и временем истечения."""
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
+    now = datetime.utcnow()
+    expire = now + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire, "iat": now})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+def decode_token(token: str) -> dict:
+    # Извлекаем payload без верификации (только чтобы взять exp/iat)
+    return jwt.get_unverified_claims(token)

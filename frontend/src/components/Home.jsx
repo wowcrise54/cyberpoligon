@@ -6,24 +6,33 @@ import './User.css';
 const fakeData = [
   {
     id: 1,
-    name: "Виртуальная машина 1",
+    name: "Windows Server 2016",
     os_type: "windows",
     cpu_cores: 4,
     memory_gb: 8
   },
   {
     id: 2,
-    name: "Виртуальная машина 2",
+    name: "Ubuntu 24.04",
     os_type: "ubuntu",
     cpu_cores: 2,
     memory_gb: 4
   },
   {
     id: 3,
-    name: "Виртуальная машина 3",
+    name: "Debian",
     os_type: "debian",
     cpu_cores: 8,
     memory_gb: 16
+  },
+  {
+    id: 4,
+    name: "Astra Linux",
+    os_type: "Astra",
+    cpu_cores: 6,
+    memory_gb: 6,
+    ssd: 256,
+    isTurnedOn: false,
   }
 ];
 

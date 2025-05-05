@@ -1,16 +1,38 @@
-import React from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { NavLink } from "react-router-dom";
 import { Button, Icon, Text, Tooltip } from '@gravity-ui/uikit';
 import { HomeIcon, AddIcon, SettingsIcon, ExitIcon } from "./Icons";
 import '../styles.css';
 import './LeftMenu.css';
 
 const LeftMenu = ({ isActive, isCollapsed, sidebarRef }) => {
-  const navigate = useNavigate();
 
-  const handleLogout = () => {
-    navigate("/Sign_in");
-  };
+
+  async function logout() {
+    try {
+      // Опционально: сначала делаем logout-запрос на бэкенд
+      const res = await fetch("/api/logout", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + sessionStorage.getItem("token"),
+        },
+      });
+      if (!res.ok) {
+        console.warn("Logout request failed:", res.status);
+      }
+    } catch (err) {
+      console.error("Error during logout request:", err);
+    } finally {
+  
+      // Удаляем
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("user");
+  
+      // Перенаправляем
+      window.location.href = "/auth";
+    }
+  }
+  
 
   return (
     <nav
@@ -63,7 +85,7 @@ const LeftMenu = ({ isActive, isCollapsed, sidebarRef }) => {
             <NavLink
               to="/Sign_in"
               className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}
-              onClick={handleLogout}
+              onClick={logout}
             >
               <Button view="flat" width="max" className="button" size="l">
                 <Icon data={ExitIcon} size={20} />

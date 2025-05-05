@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, TextInput, Text } from '@gravity-ui/uikit';
+import { toaster } from "@gravity-ui/uikit/toaster-singleton";
+import { Button, TextInput, Text, Loader } from '@gravity-ui/uikit';
 
 const Registration = () => {
   const navigate = useNavigate();
@@ -11,16 +12,21 @@ const Registration = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRegistration = async (e) => {
     e.preventDefault();
 
     if (!firstName.trim() || !lastName.trim() || !email.trim() || !password.trim()) {
-      setError("Пожалуйста, заполните все поля");
+      toaster.add({
+        title: "Ошибка",
+        content: "Пожалуйста, заполните все поля",
+        theme: "danger",
+        autoHiding: 5000,
+      });
       return;
     }
 
-    // Собираем данные в объект
     const userData = {
       first_name: firstName,
       last_name: lastName,
@@ -28,6 +34,7 @@ const Registration = () => {
       password: password,
     };
 
+    setIsLoading(true);
     try {
       const response = await fetch("/api/register", {
         method: "POST",
@@ -41,11 +48,23 @@ const Registration = () => {
         navigate("/Sign_in");
       } else {
         const result = await response.json();
-        setError(result.detail || "Ошибка регистрации");
+        toaster.add({
+          title: "Ошибка",
+          content: result.detail || "Ошибка регистрации",
+          theme: "danger",
+          autoHiding: 5000,
+        });
       }
-    } catch (error) {
-      console.error("Ошибка при запросе:", error);
-      setError("Ошибка соединения с сервером");
+    } catch (err) {
+      console.error("Ошибка при запросе:", err);
+      toaster.add({
+        title: "Ошибка",
+        content: "Ошибка соединения с сервером",
+        theme: "danger",
+        autoHiding: 5000,
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -91,9 +110,18 @@ const Registration = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
       </div>
-      {error && <div style={{ color: "red" }}>{error}</div>}
-      <Button view="action" size="l" type="submit" width="max" onClick={handleRegistration}>
-        <Text variant="body-2">Зарегистрироваться</Text>
+      <Button
+        view="action"
+        size="l"
+        type="submit"
+        width="max"
+        onClick={handleRegistration}
+        disabled={isLoading}
+      >
+        {isLoading
+          ? <Loader size="s" />
+          : <Text variant="body-2">Зарегистрироваться</Text>
+        }
       </Button>
     </div>
   );

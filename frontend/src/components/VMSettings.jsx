@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Text, TextInput, Button, Select, Loader, Switch } from '@gravity-ui/uikit';
+import { Text, TextInput, Icon, Loader, Switch, Card } from '@gravity-ui/uikit';
+import { WindowsIcon, UbuntuIcon, DebianIcon, AstraIcon } from "./Icons";
 import './User.css';
 import Scripts from "./Scripts";
 
@@ -32,8 +33,18 @@ const fakeVms = [
     memory_gb: 16,
     ssd: 1024,
     isTurnedOn: false,
+  },
+  {
+    id: "4",
+    name: "Astra Linux",
+    os_type: "Astra",
+    cpu_cores: 6,
+    memory_gb: 6,
+    ssd: 256,
+    isTurnedOn: false,
   }
 ];
+
 
 const VMSettings = () => {
   const { vmId } = useParams();
@@ -74,7 +85,12 @@ const VMSettings = () => {
 
   return (
     <div className="create">
-      <Text variant="display-1">{vm.name}</Text>
+      <Card style={{ width: '600px' }} view="raised" type="container">
+        <div className="nameimg">
+          <Text variant="display-1">{vm.name}</Text>
+        </div>
+      </Card>
+
 
       <div className="mgt">
         <Text variant="header-1">Характеристики виртуальной машины</Text>
