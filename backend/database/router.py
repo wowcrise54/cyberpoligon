@@ -7,7 +7,7 @@ from passlib.context import CryptContext
 
 from database.session import get_session
 from database.users.models import Users
-from database.auth import create_access_token, decode_token, blacklist_token
+from database.auth import create_access_token
 from database.auth_dependencies import get_current_user
 from database.scripts.models import Script
 from semaphore_api.template import create_template
