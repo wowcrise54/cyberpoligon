@@ -1,0 +1,28 @@
+# Игнорируем файлы конфигурации и секретные данные
+/backend/.env
+/backend/pki-resource.crt
+
+# Игнорируем зависимости
+node_modules/
+dist/
+
+# Игнорируем кэш и логи
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Игнорируем файлы IDE и редакторов
+.vscode/
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.venv/
