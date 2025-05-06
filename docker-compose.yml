@@ -13,15 +13,13 @@ services:
     env_file:
       - .env
     environment:
-      DB_HOST: db
+      DB_HOST: 192.168.0.60
       DB_PORT: 5432
-      DB_USER: ${DB_USER}
-      DB_PASS: ${DB_PASS}
-      DB_NAME: ${DB_NAME}
+      DB_USER: postgres 
+      DB_PASS: qwerty
+      DB_NAME: npis
     ports:
       - "8000:8000"
-    depends_on:
-      - db
     networks:
       - dev
 
