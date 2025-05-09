@@ -9,14 +9,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from semaphore_api.create_task import create_task, find_template_id_by_name, get_task_status, get_task_output
+from semaphore_api.create_task import create_task, find_template_id_by_name, get_task_status, get_task_output, get_inventory, get_environment, get_repositories, extract_id
 from tf_generator import run_terraform
 from zvirt_client import get_vms
 from f import format_vms
 
 # импортируем роутер для /api/auth
 from database.router import router as users_router
-
 load_dotenv()
 
 app = FastAPI()
@@ -32,7 +31,6 @@ app.add_middleware(
 
 # прокидываем все роуты авторизации под /api
 app.include_router(users_router, prefix="/api")
-
 
 class VMConfig(BaseModel):
     name: str
