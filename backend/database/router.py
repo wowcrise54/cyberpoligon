@@ -10,7 +10,7 @@ from database.users.models import Users
 from database.auth import create_access_token
 from database.auth_dependencies import get_current_user
 from database.scripts.models import Script
-from semaphore_api.template import create_template
+from semaphore_api.template import create_template, delete_template
 
 router = APIRouter(tags=["auth"])
 
@@ -144,3 +144,35 @@ async def list_scripts(session: AsyncSession = Depends(get_session)):
     result = await session.execute(select(Script))
     scripts = result.scalars().all()
     return scripts
+
+@router.delete(
+    "/scripts/{script_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=["scripts"],
+)
+async def delete_script(
+    script_id: int,
+    session: AsyncSession = Depends(get_session),
+):
+    # 1) Находим скрипт
+    result = await session.execute(select(Script).where(Script.id == script_id))
+    script = result.scalar_one_or_none()
+    if script is None:
+        raise HTTPException(status_code=404, detail="Скрипт не найден")
+
+    # 2) Удаляем шаблон в Semaphore
+    try:
+        delete_template(script.template_id)
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Ошибка Semaphore: {e}")
+
+    # 3) Удаляем запись из БД
+    await session.delete(script)
+    try:
+        await session.commit()
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(status_code=500, detail=f"Ошибка БД: {e}")
+
+    # 4) Возвращаем 204 No Content
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

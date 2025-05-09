@@ -32,3 +32,17 @@ def create_template(name: str, description: str, playbook_path: str) -> dict:
         resp.raise_for_status()
     resp.raise_for_status()
     return resp.json()
+
+
+def delete_template(template_id: int) -> None:
+    """
+    Удаляет шаблон в Semaphore по ID.
+    Бросает HTTPError, если статус >= 400.
+    """
+    resp = requests.delete(
+        f"{BASE_URL}/project/{PROJECT_ID}/templates/{template_id}",
+        headers=HEADERS,
+    )
+    if resp.status_code >= 400:
+        logging.error("Semaphore DELETE %s → %s", resp.status_code, resp.text)
+    resp.raise_for_status()
