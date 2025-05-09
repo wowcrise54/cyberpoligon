@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Text, TextInput, Icon, Loader, Switch, Card } from '@gravity-ui/uikit';
-import { WindowsIcon, UbuntuIcon, DebianIcon, AstraIcon } from "./Icons";
+import { Text, TextInput, Icon, Loader, Switch, Card, Button, Label } from '@gravity-ui/uikit';
+import {TrashBin, Copy, Terminal, CirclePlay, Globe, Cpu, HardDrive, FloppyDisk} from '@gravity-ui/icons';
 import './User.css';
 import Scripts from "./Scripts";
 
@@ -85,73 +85,141 @@ const VMSettings = () => {
 
   return (
     <div className="create">
-      <Card style={{ width: '600px' }} view="raised" type="container">
-        <div className="nameimg">
-          <Text variant="display-1">{vm.name}</Text>
+      <Card view="outlined" type="container">
+        <div className="vm-card">
+          <div className="vm-title">
+            <div className="vm-name">
+
+              <Text variant="header-1">{vm.name}</Text>
+              <Text variant="body-2">Описание и общая информация о виртуальной машине</Text>
+            </div>
+
+            <div className="vm-buttons">
+
+              <Button view="normal" size="m">
+                <Icon data={TrashBin} size={16} />
+              </Button>
+              <Button view="normal" size="m">
+                <Icon data={Copy} size={16} />
+              </Button>
+              <Button view="normal" size="m">
+                <Icon data={Terminal} size={16} />
+              </Button>
+              <Button view="action" size="m">
+                <Icon data={CirclePlay} size={16} />
+                Запустить
+              </Button>
+            </div>
+          </div>
+
+          <div className="vm-params">
+
+            <div className="param-group">
+
+              <div className="param">
+                <Text variant="subheader-2">Состояние</Text>
+                <Label size="xs" theme="danger">Выключена</Label>
+              </div>
+
+              <div className="param">
+                <Text variant="subheader-2">Создана</Text>
+                <Text variant="body-1">5 дней назад</Text>
+              </div>
+
+              <div className="param">
+                <Text variant="subheader-2" style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <Icon data={HardDrive} size={16} />
+                  Размер диска</Text>
+                <Text variant="body-1">256 GB</Text>
+              </div>                          
+
+            </div>
+
+            <div className="param-group">
+
+              <div className="param">
+                <Text variant="subheader-2">Регион</Text>
+                <Text variant="body-1">Тюмень</Text>
+              </div>
+
+              <div className="param">
+                <Text variant="subheader-2">Последнее изменение</Text>
+                <Text variant="body-1">2 дня назад</Text>
+              </div>
+
+              <div className="param">
+                <Text variant="subheader-2" style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <Icon data={FloppyDisk} size={16} />
+                  Оперативная память</Text>
+                <Text variant="body-1">18 GB</Text>
+              </div>    
+
+            </div>
+
+            <div className="param-group">
+
+              <div className="param">
+                <Text variant="subheader-2">Имя хоста</Text>
+                <Text color="warning" variant="body-1">vm-sunset-1234.cyberpoligon.dev</Text>
+              </div>
+
+              <div className="param">
+                <Text variant="subheader-2" style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <Icon data={Globe} size={16} />
+                  IP адрес</Text>
+                <Text variant="body-1">192.168.195.163</Text>
+              </div>            
+
+            </div>
+
+            <div className="param-group">
+
+              <div className="param">
+                <Text variant="subheader-2">Операционная система</Text>
+                <Text variant="body-1">{vm.os_type}</Text>
+              </div>
+
+              <div className="param">
+                <Text variant="subheader-2" style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <Icon data={Cpu} size={16} />
+                  Процессор</Text>
+                <Text variant="body-1">4 ядра</Text>
+              </div>
+
+            </div>
+
+          </div>
         </div>
       </Card>
 
-
-      <div className="mgt">
-        <Text variant="header-1">Характеристики виртуальной машины</Text>
-      </div>
-      <div className="option">
-          <Text variant="body-2">Операционная система</Text>
-          <TextInput
-              style={{ width: "300px" }}
-              defaultValue={vm.os_type}
-              disabled
-          />
-        </div>
-
-
-      <div className="option">
-        <Text variant="body-2">Количество ядер процессора</Text>
-        <TextInput
-            style={{ width: "300px" }}
-            type="number"
-            placeholder="Введите количество ядер"
-            defaultValue={vm.cpu_cores}
-        />
-      </div>
-
-      <div className="option">
-        <Text variant="body-2">Количество оперативной памяти</Text>
-        <TextInput
-            style={{ width: "300px" }}
-            type="number"
-            placeholder="Введите количество оперативной памяти"
-            defaultValue={vm.memory_gb}
-        />
-      </div>
-
-      <div className="option">
-        <Text variant="body-2">Обьем жесткого диска</Text>
-        <TextInput
-            style={{ width: "300px" }}
-            type="number"
-            placeholder="Введите объем жесткого диска"
-            defaultValue={vm.ssd}
-        />
-      </div>
-
-      <div className="option">
-        <Text variant="body-2">Состояние </Text>
-        <Switch
-          style={{ width: "300px" }}
-          size="l"
-          checked={isTurnedOn}
-          onChange={(e) => setIsTurnedOn(e.target.checked)}
-        >
-          {isTurnedOn ? "Включена" : "Выключена"}
-        </Switch>
-      </div>
-
       
-      <div className="mgt">
-        <Text variant="header-1">Доступные скрипты</Text>
-      </div>
-      <Scripts/>
+      <Card view="outlined" type="container" style={{ marginTop: 50 }}>
+        <div className="vm-card">
+          <div className="vm-title">
+            <div className="vm-name">
+
+              <Text variant="header-1">Скрипты</Text>
+              <Text variant="body-2">Скрипты, доступные для данной виртуальной машины</Text>
+            </div>
+
+            <div className="vm-buttons">
+
+            <Button view="action" size="m">
+              <Icon data={CirclePlay} size={16} />
+              Добавить новый скрипт
+            </Button>
+          </div>
+
+          </div>
+
+          <div className="vm-params">
+
+            <Scripts/>
+          </div>
+
+        </div>
+      </Card>
+
     </div>
   );
 };

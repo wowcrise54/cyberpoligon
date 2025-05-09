@@ -7,16 +7,19 @@ import {
   User,
   Table,
   withTableActions,
+  Loader,
+  Icon
 } from '@gravity-ui/uikit';
+import {ArrowRight} from '@gravity-ui/icons';
 import './User.css';
 
 const MyTable = withTableActions(Table);
 
 const columns = [
-  { id: "last_name",  title: "Фамилия", align: "left" },
-  { id: "first_name", title: "Имя",     align: "left" },
-  { id: "email",      title: "Почта",   align: "left" },
-  { id: "role",       title: "Роль",    align: "left" },
+  { id: "last_name",  name: "Фамилия", align: "left" },
+  { id: "first_name", name: "Имя",     align: "left" },
+  { id: "email",      name: "Почта",   align: "left" },
+  { id: "role",       name: "Роль",    align: "left" },
 ];
 
 export default function ProfilePage() {
@@ -52,7 +55,11 @@ export default function ProfilePage() {
   }, []);
 
   if (!me) {
-    return <Text>Загрузка...</Text>;
+    return (
+      <div className="loader">
+        <Loader size="l" />
+      </div>
+    );
   }
 
   const changeRole = (userId, newRole) => {
@@ -74,8 +81,12 @@ export default function ProfilePage() {
       });
   };
 
-  const getRowActions = row =>
-    roles.map(r => ({ text: `→ ${r.name}`, handler: () => changeRole(row.id, r.name) }));
+const getRowActions = (row) =>
+  roles.map((r) => ({
+    text: r.name,
+    icon: <Icon data={ArrowRight} size={16} />,
+    handler: () => changeRole(row.id, r.name),
+  }));
 
   return (
     <div className="profile1">
@@ -138,15 +149,18 @@ export default function ProfilePage() {
 
         {/* ——— Таблица только для админов */}
         {me.role === "admin" && (
-          <div className="temple" style={{ width: '100%', marginTop: 30 }}>
+          <div className="temple">
             <Text variant="header-1">Все пользователи</Text>
-            <MyTable
+            <div className="option-profile">
+              <MyTable
               columns={columns}
               data={users}
               noDataMessage="Пользователи не найдены"
               getRowActions={getRowActions}
-              rowActionsSize="m"
-            />
+              rowActionsSize="l"
+              />
+            </div>
+            
           </div>
         )}
 
