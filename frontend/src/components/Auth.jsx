@@ -37,13 +37,6 @@ const Auth = () => {
       
       if (response.ok) {
         sessionStorage.setItem("token", data.access_token);
-        sessionStorage.setItem(
-          "user",
-          JSON.stringify({
-            first_name: data.first_name,
-            last_name: data.last_name,
-          })
-        );
         navigate("/User");
       } else {
         toaster.add({

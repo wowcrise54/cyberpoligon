@@ -1,0 +1,37 @@
+---
+- name: Manage user accounts and set a password
+  hosts: test_debian
+  become: true
+
+  vars:
+    example_user: maks
+    example_uid: 1050
+    example_gid: 1050
+    example_home: "/home/{{ example_user }}"
+    example_password_plain: "qweasdZXC123"
+    example_password_hash: "{{ example_password_plain | password_hash('sha512') }}"
+
+  tasks:
+    - name: Ensure primary group '{{ example_user }}' exists with GID {{ example_gid }}
+      ansible.builtin.group:
+        name: "{{ example_user }}"
+        gid: "{{ example_gid }}"
+        state: present
+
+    - name: Ensure group 'wheel' exists
+      ansible.builtin.group:
+        name: developers 
+        state: present
+
+    - name: Add user '{{ example_user }}' with UID, groups and password
+      ansible.builtin.user:
+        name: "{{ example_user }}"
+        uid: "{{ example_uid }}"
+        group: "{{ example_user }}"
+        groups: "developers"
+        append: yes
+        comment: "Example User"
+        home: "{{ example_home }}"
+        create_home: yes
+        shell: /bin/bash
+        password: "{{ example_password_hash }}"

@@ -1,0 +1,8 @@
+- name: Create a group on the target host
+  hosts: test_debian
+  become: true
+  tasks:
+    - name: Create a group
+      ansible.builtin.group:
+        name: npis
+        state: present

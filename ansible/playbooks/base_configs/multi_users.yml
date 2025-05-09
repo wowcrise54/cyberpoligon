@@ -1,0 +1,16 @@
+- name: Add multiple users
+  hosts: test_debian
+  become: true 
+  vars:
+    users:
+      - { name: 'user1', password: '{{ "password1" | password_hash("sha512") }}', groups: 'developers' }
+      - { name: 'user2', password: '{{ "password2" | password_hash("sha512") }}', groups: 'developers' }
+      - { name: 'user3', password: '{{ "password3" | password_hash("sha512") }}', groups: 'developers' }
+  tasks:
+    - name: Add users
+      user:
+        name: "{{ item.name }}"
+        password: "{{ item.password }}"
+        groups: "{{ item.groups }}"
+        append: yes
+      loop: "{{ users }}"

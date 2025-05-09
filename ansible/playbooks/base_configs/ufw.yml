@@ -1,0 +1,24 @@
+- name: Check UFW firewall
+  hosts: test_debian
+  become: true
+
+  tasks:
+    - name: Install ufw if missing
+      apt:
+        name: ufw
+        state: present
+        update_cache: yes
+
+    - name: Ensure UFW is enabled
+      ufw:
+        state: enabled
+
+    - name: Ensure SSH is allowed
+      ufw:
+        rule: allow
+        name: OpenSSH
+
+    - name: Ensure HTTP is allowed
+      ufw:
+        rule: allow
+        port: 80

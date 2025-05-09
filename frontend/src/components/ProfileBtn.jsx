@@ -1,25 +1,34 @@
 // ProfileBtn.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserLabel } from '@gravity-ui/uikit';
-import { useNavigate } from 'react-router-dom';  // <-- импортируем
+import { useNavigate } from 'react-router-dom';
 
 export default function ProfileBtn() {
-  const navigate = useNavigate();              // <-- создаём навигатор
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
-  // 1) Получаем строку из sessionStorage
-  const userJson = sessionStorage.getItem("user");
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+    if (!token) return;
 
-  // 2) Парсим только если не null
-  let user = null;
-  if (userJson) {
-    try {
-      user = JSON.parse(userJson);
-    } catch (e) {
-      console.error("Ошибка парсинга user из sessionStorage:", e);
-    }
-  }
+    fetch("/api/me", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(profile => setUser(profile))
+      .catch(err => {
+        console.error("Не удалось загрузить профиль:", err);
+        // при ошибке можно, например, сбросить токен
+        // sessionStorage.removeItem("token");
+      });
+  }, []);
 
-  // 3) Собираем отображаемую строку
   const label = user
     ? `${user.first_name} ${user.last_name}`
     : "Гость";
@@ -27,7 +36,7 @@ export default function ProfileBtn() {
   return (
     <div>
       <UserLabel
-        onClick={() => navigate('/User/me')}  // <-- вызываем
+        onClick={() => navigate('/User/me')}
         type="person"
         size="m"
       >
