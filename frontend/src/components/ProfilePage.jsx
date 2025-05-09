@@ -1,128 +1,156 @@
-import React, {useEffect} from "react";
-import {Text, TextInput, Button, User, Icon} from '@gravity-ui/uikit';
-import { HomeIcon, AddIcon, SettingsIcon, ExitIcon } from "./Icons";
+// ProfilePage.jsx
+import React, { useEffect, useState } from "react";
+import {
+  Text,
+  TextInput,
+  Button,
+  User,
+  Table,
+  withTableActions,
+} from '@gravity-ui/uikit';
 import './User.css';
 
-const ProfilePage = () => {
+const MyTable = withTableActions(Table);
 
-    useEffect(() => {
-        document.title = "Мой профиль";
-    }, []);
+const columns = [
+  { id: "last_name",  title: "Фамилия", align: "left" },
+  { id: "first_name", title: "Имя",     align: "left" },
+  { id: "email",      title: "Почта",   align: "left" },
+  { id: "role",       title: "Роль",    align: "left" },
+];
 
-    return (
-        <div className="profile1">
+export default function ProfilePage() {
+  const [me, setMe]       = useState(null);
+  const [users, setUsers] = useState([]);
+  const [roles, setRoles] = useState([]);
 
-            <Text variant="display-1">Мой профиль</Text>
-            <div className="profile">
-            
-                <div className="temple">
-                    <Text variant="header-1">Мои данные</Text>
-                    <div className="user-card">
-                        <User avatar={{text: 'Евгений Люленов', theme: 'brand'}} 
-                            name="Евгений Люленов" 
-                            description="elyulenov@yandex.ru" 
-                            size="xl" />
-                    </div>
+  useEffect(() => {
+    document.title = "Мой профиль";
+    const token   = sessionStorage.getItem("token");
+    const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
 
-                    <div className="group">
-                        <div className="option-profile">
-                            <Text variant="body-2" style={{ width: "200px" }}>Имя</Text>
-                            <TextInput
-                                size="l"
-                                style={{ width: "200px" }}
-                                placeholder="Ваше имя"
-                                defaultValue="Евгений"
-                            />
-                        </div>
+    // теперь: чистый запрос в БД
+    fetch("/api/me", { headers })
+      .then(r => r.ok ? r.json() : Promise.reject(r.statusText))
+      .then(profile => {
+        setMe(profile);
 
-                        <div className="option-profile">
-                            <Text variant="body-2" style={{ width: "200px" }}>Фамилия</Text>
-                            <TextInput
-                                size="l"
-                                style={{ width: "200px" }}
-                                placeholder="Ваша фамилия"
-                                defaultValue="Люленов"
-                            />
-                        </div>
-                    </div>
-                    
+        // только если admin — подгружаем таблицу
+        if (profile.role === "admin") {
+          fetch("/api/users", { headers })
+            .then(r => r.ok ? r.json() : Promise.reject(r.statusText))
+            .then(data => setUsers(data))
+            .catch(console.error);
 
-                    <Button
-                        view="action"
-                        size="l"
-                        style={{ marginTop: "25px" }}
-                    >
-                        <Text variant="body-2">Сохранить</Text>
-                    </Button>
-                </div>
+          fetch("/api/roles", { headers })
+            .then(r => r.ok ? r.json() : Promise.reject(r.statusText))
+            .then(data => setRoles(data))
+            .catch(console.error);
+        }
+      })
+      .catch(err => console.error("Не удалось загрузить профиль:", err));
+  }, []);
 
-                <div className="temple">
-                    <Text variant="header-1">Важные данные</Text>
+  if (!me) {
+    return <Text>Загрузка...</Text>;
+  }
 
-                    <div className="group">
-                        <div className="option-profile">
-                            <Text variant="body-2" style={{ width: "200px" }}>Почта</Text>
-                            <TextInput
-                                size="l"
-                                style={{ width: "200px" }}
-                                type="email"
-                                placeholder="Ваш email"
-                                defaultValue="elyulenov@yandex.ru"
-                                disabled={true}
-                            />
-                        </div>
+  const changeRole = (userId, newRole) => {
+    const token   = sessionStorage.getItem("token");
+    const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
 
-                        <div className="option-profile">
-                            <Text variant="body-2" style={{ width: "200px" }}>Телефон</Text>
-                            <TextInput
-                                size="l"
-                                style={{ width: "200px" }}
-                                type="tel"
-                                placeholder="Ваш номер телефона"
-                                defaultValue="+7 999 888 77 66"
-                                disabled={true}
-                            />
-                        </div> 
+    fetch(`/api/users/${userId}/role`, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify({ role: newRole }),
+    })
+      .then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        setUsers(us => us.map(u => u.id === userId ? { ...u, role: newRole } : u));
+      })
+      .catch(err => {
+        console.error("Ошибка при смене роли:", err);
+        alert(`Не удалось изменить роль: ${err.message}`);
+      });
+  };
 
-                    </div>
+  const getRowActions = row =>
+    roles.map(r => ({ text: `→ ${r.name}`, handler: () => changeRole(row.id, r.name) }));
 
-                    <div className="group">
-                        <div className="option-profile">
-                            <Text variant="body-2">Пароль</Text>
-                            <TextInput
-                                size="l"
-                                style={{ width: "200px" }}
-                                type="password"
-                                defaultValue="123123"
-                                disabled={true}
-                            />
-                        </div>
+  return (
+    <div className="profile1">
+      <Text variant="display-1">Мой профиль</Text>
+      <div className="profile">
 
-                        <div className="option-profile">
-                            <Text variant="body-2">Роль</Text>
-                            <TextInput
-                                size="l"
-                                style={{ width: "200px" }}
-                                placeholder="Ваша роль"
-                                defaultValue="Администратор"
-                                disabled={true}
-                            />
-                        </div>
-                    </div>   
-
-                    <Button
-                        view="action"
-                        size="l"
-                        style={{ marginTop: "25px" }}
-                    >
-                        <Text variant="body-2">Изменить</Text>
-                    </Button>
-                </div>
-                
+        {/* ——— Левый блок */}
+        <div className="temple">
+          <Text variant="header-1">Мои данные</Text>
+          <div className="user-card">
+            <User
+              avatar={{ text: `${me.first_name} ${me.last_name}`, theme: 'brand' }}
+              name={`${me.first_name} ${me.last_name}`}
+              description={me.email}
+              size="xl"
+            />
+          </div>
+          <div className="group">
+            <div className="option-profile">
+              <Text variant="body-2">Имя</Text>
+              <TextInput size="l" defaultValue={me.first_name} placeholder="Ваше имя" />
             </div>
+            <div className="option-profile">
+              <Text variant="body-2">Фамилия</Text>
+              <TextInput size="l" defaultValue={me.last_name} placeholder="Ваша фамилия" />
+            </div>
+          </div>
+          <Button view="action" size="l" style={{ marginTop: 20 }}>
+            <Text variant="body-2">Сохранить</Text>
+          </Button>
         </div>
-        
-    )
-}
 
-export default ProfilePage;
+        {/* ——— Правый блок */}
+        <div className="temple">
+          <Text variant="header-1">Важные данные</Text>
+          <div className="group">
+            <div className="option-profile">
+              <Text variant="body-2">Почта</Text>
+              <TextInput size="l" type="email"    value={me.email} disabled />
+            </div>
+            <div className="option-profile">
+              <Text variant="body-2">Телефон</Text>
+              <TextInput size="l" type="tel"      defaultValue="+7 999 888 77 66" disabled />
+            </div>
+          </div>
+          <div className="group">
+            <div className="option-profile">
+              <Text variant="body-2">Пароль</Text>
+              <TextInput size="l" type="password" defaultValue="••••••••" disabled />
+            </div>
+            <div className="option-profile">
+              <Text variant="body-2">Роль</Text>
+              <TextInput size="l" value={me.role} disabled />
+            </div>
+          </div>
+          <Button view="action" size="l" style={{ marginTop: 20 }}>
+            <Text variant="body-2">Изменить</Text>
+          </Button>
+        </div>
+
+        {/* ——— Таблица только для админов */}
+        {me.role === "admin" && (
+          <div className="temple" style={{ width: '100%', marginTop: 30 }}>
+            <Text variant="header-1">Все пользователи</Text>
+            <MyTable
+              columns={columns}
+              data={users}
+              noDataMessage="Пользователи не найдены"
+              getRowActions={getRowActions}
+              rowActionsSize="m"
+            />
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}
