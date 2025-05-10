@@ -4,7 +4,7 @@ import time
 # Конфигурация для доступа к API Semaphore (захардкоженные параметры)
 BASE_URL = "http://192.168.220.197:3000/api"  # адрес сервера Semaphore
 PROJECT_ID = 1
-TOKEN = "x_q4cioisee5jcdvkzyu1brougqj1bsxjh886gsjiuu="  # ваш API-токен
+TOKEN = "wee53plyeyqpcfxkuwnurmn-lwvsoewqacmjj0rsvsy="  # ваш API-токен
 
 HEADERS = {
     "Authorization": f"Bearer {TOKEN}",
