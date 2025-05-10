@@ -1,0 +1,13 @@
+- name: Create a user with a specific UID and home directory
+  hosts: test_debian
+  become: true  
+  tasks:
+    - name: Add user 'customuser' with a specific UID and home directory
+      user:
+        name: customuser
+        state: present
+        uid: 1500
+        home: "/opt/customuser"
+        createhome: yes
+        shell: "/bin/bash"
+        comment: "Custom User with specific UID"

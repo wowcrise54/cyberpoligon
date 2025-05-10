@@ -18,6 +18,7 @@
     justify-content: space-between;
     align-items: center;
     margin-top: 25px;
+    margin-top: 25px;
     width: 600px;
 }
 
@@ -168,6 +169,7 @@
     display: flex;
     justify-content: space-evenly;
     align-items: center;
+    background-color: var(--g-color-background-profile);
     background-color: var(--g-color-background-profile);
     border-radius: 8px;
     width: 600px;

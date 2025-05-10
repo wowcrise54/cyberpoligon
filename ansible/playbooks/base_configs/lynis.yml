@@ -1,0 +1,18 @@
+- name: Run Lynis security audit
+  hosts: test_debian
+  become: true
+
+  tasks:
+    - name: Install Lynis
+      apt:
+        name: lynis
+        state: present
+        update_cache: yes
+
+    - name: Run Lynis audit (quick)
+      shell: lynis audit system --quick
+      register: lynis_report
+
+    - name: Show Lynis summary
+      debug:
+        msg: "{{ lynis_report.stdout_lines | select('search','Hardening index') | list }}"

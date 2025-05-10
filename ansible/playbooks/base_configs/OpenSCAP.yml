@@ -1,0 +1,35 @@
+- name: Run OpenSCAP CIS audit
+  hosts: test_debian
+  become: true
+
+  vars:
+    cis_profile: "xccdf_org.ssgproject.content_profile_cis"
+
+  tasks:
+    - name: Install OpenSCAP and security guide
+      ansible.builtin.apt:
+        name:
+          - libopenscap8
+          - openscap-scanner
+          - scap-security-guide
+        state: present
+        update_cache: yes
+
+    - name: Generate CIS report (XML + HTML)
+      ansible.builtin.shell: >
+        oscap xccdf eval
+          --profile {{ cis_profile }}
+          --results /root/openscap-results.xml
+          --report /root/openscap-report.html
+          /usr/share/xml/scap/ssg/content/ssg-ubuntu2004-ds.xml
+      args:
+        warn: false
+
+    - name: Покажем краткий итог сканирования
+      ansible.builtin.shell: grep -E '<result>fail</result>' /root/openscap-results.xml || echo "No failed items found"
+      register: cis_failures
+      changed_when: false
+
+    - name: Вывести число проваленных проверок
+      ansible.builtin.debug:
+        msg: "Failed checks: {{ cis_failures.stdout_lines | length }}"

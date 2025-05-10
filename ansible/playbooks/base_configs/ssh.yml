@@ -1,0 +1,24 @@
+- name: Audit SSH configuration
+  hosts: test_debian
+  become: true
+
+  tasks:
+    - name: Ensure SSH RootLogin is disabled
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PermitRootLogin'
+        line: 'PermitRootLogin no'
+      register: rootlogin_cfg
+
+    - name: Ensure only Protocol 2 is allowed
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?Protocol'
+        line: 'Protocol 2'
+      register: protocol_cfg
+
+    - name: Restart SSH if any change occurred
+      ansible.builtin.service:
+        name: ssh
+        state: restarted
+      when: rootlogin_cfg.changed or protocol_cfg.changed

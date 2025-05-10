@@ -1,0 +1,9 @@
+- name: Remove a user
+  hosts: test_debian
+  become: true
+  tasks:
+    - name: Remove the user
+      user:
+        name: leha1
+        state: absent
+        remove: yes

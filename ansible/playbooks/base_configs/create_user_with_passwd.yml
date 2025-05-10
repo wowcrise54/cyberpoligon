@@ -1,0 +1,23 @@
+- name: Add user with password
+  hosts: test_debian
+  become: true
+
+  vars:
+    example_user: leha2
+    example_uid: 1080
+    example_home: "/home/{{ example_user }}"
+    example_password_plain: "qweasdZXC123"
+    example_password_hash: "{{ example_password_plain | password_hash('sha512') }}"
+
+  tasks:
+    - name: Add user '{{ example_user }}' with UID and password
+      ansible.builtin.user:
+        name: "{{ example_user }}"
+        uid: "{{ example_uid }}"
+        comment: "Example User"
+        home: "{{ example_home }}"
+        create_home: yes
+        shell: /bin/bash
+        password: "{{ example_password_hash }}"
+        update_password: always
+        password_lock: no
