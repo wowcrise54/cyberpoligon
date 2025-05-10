@@ -202,6 +202,8 @@ class ScriptCreate(BaseModel):
     name: str
     path: str
     description: str
+    tag: str
+    app: str
 
 class ScriptOut(BaseModel):
     id: int
@@ -209,6 +211,8 @@ class ScriptOut(BaseModel):
     path: str
     description: str
     template_id: int
+    tag: str
+    app: str
 
     class Config:
         orm_mode = True
@@ -221,6 +225,8 @@ async def add_script(payload: ScriptCreate, session: AsyncSession = Depends(get_
             name=payload.name,
             description=payload.description,
             playbook_path=payload.path,
+            tag=payload.tag,
+            app=payload.app,
         )
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Semaphore error: {e}")
@@ -235,6 +241,8 @@ async def add_script(payload: ScriptCreate, session: AsyncSession = Depends(get_
         path=payload.path,
         description=payload.description,
         template_id=template_id,
+        tag=payload.tag,
+        app=payload.app,
     )
     session.add(new_script)
     try:
@@ -283,3 +291,38 @@ async def delete_script(
 
     # 4) Возвращаем 204 No Content
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+
+class ScriptUpdate(BaseModel):
+    description: str
+
+@router.patch(
+    "/scripts/{script_id}",
+    response_model=ScriptOut,    # тот же Pydantic-модель, что и в POST/GET
+    status_code=status.HTTP_200_OK,
+    tags=["scripts"],
+)
+async def update_script(
+    script_id: int = Path(..., description="ID скрипта"),
+    payload: ScriptUpdate = Body(...),
+    session: AsyncSession = Depends(get_session),
+):
+    # 1) Достаём скрипт
+    result = await session.execute(select(Script).where(Script.id == script_id))
+    script = result.scalar_one_or_none()
+    if script is None:
+        raise HTTPException(status_code=404, detail="Скрипт не найден")
+
+    # 2) Меняем описание
+    script.description = payload.description
+    session.add(script)
+    try:
+        await session.commit()
+        await session.refresh(script)
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(status_code=500, detail=f"Ошибка БД: {e}")
+
+    # 3) Возвращаем обновлённый объект
+    return script

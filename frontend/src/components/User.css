@@ -157,7 +157,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 15px;
+    padding: 20px;
     gap: 20px;
     max-width: 80vh;
     min-height: 40vh;
@@ -219,4 +219,18 @@
     display: flex;
     flex-direction: column;
     gap: 40px;
+}
+
+.g-table {
+  width: 100%;
+  font-size: 14px;
+}
+
+.g-table__table {
+  width: 100% !important;
+}
+
+.script-description {
+    white-space: pre-wrap;
+    word-break: break-word;
 }

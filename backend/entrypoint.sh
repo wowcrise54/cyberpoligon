@@ -33,6 +33,21 @@ async def init_models():
 asyncio.run(init_models())
 EOF
 
+echo "=== Creating missing tables via SQLAlchemy ==="
+python - <<'EOF'
+import asyncio
+from database.db_config import engine, Base
+# импортируем оба ваших модуля с моделями
+import database.scripts.models
+
+async def init_models():
+    async with engine.begin() as conn:
+        # создаст только недостающие таблицы, существующие трогать не будет
+        await conn.run_sync(Base.metadata.create_all)
+
+asyncio.run(init_models())
+EOF
+
 echo "=== Seeding roles ==="
 python - <<'EOF'
 import asyncio
