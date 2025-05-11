@@ -171,9 +171,6 @@
 .script-description {
     white-space: pre-wrap;
     word-break: break-word;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
 }
 
 .script-buttons {
@@ -244,5 +241,6 @@
 .g-table__table {
   width: 100% !important;
 }
+
 
 
