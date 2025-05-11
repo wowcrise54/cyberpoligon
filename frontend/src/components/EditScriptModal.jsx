@@ -66,26 +66,33 @@ export default function EditScriptModal({ open, onClose, script, onSave }) {
 
   return (
     <Modal open={open} onClose={onClose} width="m">
-      <div style={{ padding: 16 }}>
-        {/* Заголовок с именем скрипта */}
-        <Text variant="header-2">
-          Редактировать описание "{script?.name || script?.Название}"
-        </Text>
+      <div className="scriptinfo">
 
-        {loading ? (
-          <Loader size="l" style={{ margin: "16px auto", display: "block" }} />
-        ) : (
-          <TextArea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Описание скрипта"
-            size="xl"
-            style={{ width: "100%", marginTop: 12 }}
-          />
-        )}
+        <div className="script-title">
+          <Text variant="header-2">
+            Редактировать описание "{script?.name || script?.Название}"
+          </Text>
 
-        <div style={{ marginTop: 16, textAlign: "right" }}>
-          <Button view="ghost" onClick={onClose}>
+        </div>
+
+        <div className="script-description">
+          {loading ? (
+            <Loader size="l" />
+          ) : (
+            <TextArea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Описание скрипта"
+              size="xl"
+              style={{ width: "100%", marginTop: 12 }}
+            />
+          )}
+
+        </div>
+
+
+        <div className="script-buttons">
+          <Button view="flat" onClick={onClose}>
             Отмена
           </Button>
           <Button
