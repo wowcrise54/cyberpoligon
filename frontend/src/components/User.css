@@ -156,13 +156,25 @@
 .scriptinfo {
     display: flex;
     flex-direction: column;
-    align-items: center;
     padding: 20px;
     gap: 20px;
     max-width: 80vh;
-    min-height: 40vh;
     width: auto;
     height: auto;
+}
+
+.script-title {
+    display: flex;
+    justify-content: center;
+}
+
+.script-description {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.script-buttons {
+    text-align: right;
 }
 
 .nameimg {
@@ -230,7 +242,4 @@
   width: 100% !important;
 }
 
-.script-description {
-    white-space: pre-wrap;
-    word-break: break-word;
-}
+
