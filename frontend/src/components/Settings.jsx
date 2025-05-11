@@ -1,77 +1,132 @@
 import React, {useEffect, useState} from "react";
-import {Text, TextInput, TextArea, Select, Button} from '@gravity-ui/uikit';
-import { toaster } from "@gravity-ui/uikit/toaster-singleton"
-import { useNavigate } from "react-router-dom";
+import {Text, TextInput, TextArea, Button, Loader} from '@gravity-ui/uikit';
+import { toaster } from "@gravity-ui/uikit/toaster-singleton";
 import './User.css';
 
 export default function Settings() {
-    const navigate = useNavigate();
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [path, setPath] = useState("");
-  
+    const [tag, setTag] = useState("");
+    const [app, setApp] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+
     useEffect(() => {
-      document.title = "Настройки";
+        document.title = "Настройки";
     }, []);
-  
+
     const handleSubmit = async () => {
-      try {
-        const res = await fetch("/api/scripts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, path, description }),
-        });
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.detail || res.statusText);
+        if (!name.trim() || !path.trim() || !description.trim() || !tag.trim() || !app.trim()) {
+            toaster.add({
+                title: "Ошибка",
+                content: "Пожалуйста, заполните все поля",
+                theme: "danger",
+                autoHiding: 5000,
+            });
+            return;
         }
-        toaster.add({ title: "Готово", content: "Скрипт сохранён", theme: "success" });
-        navigate("/all-scripts");
-      } catch (e) {
-        toaster.add({ title: "Ошибка", content: e.message, theme: "danger" });
-      }
+
+        setIsLoading(true);
+
+        try {
+            const res = await fetch("/api/scripts", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, path, description, tag, app }),
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.detail || res.statusText);
+            }
+
+            // Успешно сохранили — показываем тост
+            toaster.add({ title: name, content: "Скрипт добавлен", theme: "success" });
+
+            // Очищаем форму
+            setName("");
+            setDescription("");
+            setPath("");
+            setTag("");
+            setApp("");
+        } catch (e) {
+            toaster.add({ title: "Ошибка", content: e.message, theme: "danger" });
+        } finally {
+            setIsLoading(false);
+        }
     };
-  
+
     return (
-      <div className="create">
-        <Text variant="display-1">Добавить скрипт</Text>
-  
-        <div className="option">
-          <Text variant="body-2">Название</Text>
-          <TextInput
-            value={name}
-            onChange={e => setName(e.target.value)}
-            placeholder="Название скрипта"
-            size="m"
-            style={{ width: 300 }}
-          />
+        <div className="create">
+            <Text variant="display-1">Добавить скрипт</Text>
+
+            <div className="option">
+                <Text variant="body-2">Название</Text>
+                <TextInput
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    placeholder="Название скрипта"
+                    size="m"
+                    style={{ width: 300 }}
+                />
+            </div>
+
+            <div className="option">
+                <Text variant="body-2">Описание</Text>
+                <TextArea
+                    value={description}
+                    onChange={e => setDescription(e.target.value)}
+                    placeholder="Описание скрипта"
+                    size="m"
+                    style={{ width: 300 }}
+                />
+            </div>
+
+            <div className="option">
+                <Text variant="body-2">Путь до скрипта</Text>
+                <TextInput
+                    value={path}
+                    onChange={e => setPath(e.target.value)}
+                    placeholder="Путь (playbook) в репозитории"
+                    size="m"
+                    style={{ width: 300 }}
+                />
+            </div>
+
+            <div className="option">
+                <Text variant="body-2">Тег</Text>
+                <TextInput
+                    value={tag}
+                    onChange={e => setTag(e.target.value)}
+                    placeholder="К какой ОС относится скрипт"
+                    size="m"
+                    style={{ width: 300 }}
+                />
+            </div>
+
+            <div className="option">
+                <Text variant="body-2">Приложение</Text>
+                <TextInput
+                    value={app}
+                    onChange={e => setApp(e.target.value)}
+                    placeholder="Приложение для запуска скрипта"
+                    size="m"
+                    style={{ width: 300 }}
+                />
+            </div>
+
+            <Button
+                view="action"
+                size="l"
+                style={{ marginTop: 20 }}
+                onClick={handleSubmit}
+                disabled={isLoading}
+            >
+                {isLoading
+                    ? <Loader size="s" />
+                    : <Text variant="body-2">Добавить</Text>
+                }
+            </Button>
         </div>
-  
-        <div className="option">
-          <Text variant="body-2">Описание</Text>
-          <TextArea
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            placeholder="Описание скрипта"
-            size="m"
-            style={{ width: 300 }}
-          />
-        </div>
-  
-        <div className="option">
-          <Text variant="body-2">Путь до скрипта</Text>
-          <TextInput
-            value={path}
-            onChange={e => setPath(e.target.value)}
-            placeholder="Путь (playbook) в репозитории"
-            size="m"
-            style={{ width: 300 }}
-          />
-        </div>
-  
-        <Button view="action" size="l" style={{ marginTop: 20 }} onClick={handleSubmit}>
-          <Text variant="body-2">Добавить</Text>
-        </Button>
-      </div>
     );
-  }
+}

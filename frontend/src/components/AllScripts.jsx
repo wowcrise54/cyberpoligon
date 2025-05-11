@@ -1,27 +1,38 @@
+// AllScripts.jsx
 import React, {useEffect, useState} from "react";
-import { Icon, Table, withTableActions, Spin, Text } from "@gravity-ui/uikit";
+import { Icon, Table, withTableActions, Spin, Text, Loader } from "@gravity-ui/uikit";
 import { toaster } from "@gravity-ui/uikit/toaster-singleton";
-import { TrashBin, ArrowDownToLine, PencilToSquare } from "@gravity-ui/icons";
+import { TrashBin, PencilToSquare } from "@gravity-ui/icons";
 import ScriptInfo from "./ScriptInfo";
+import EditScriptModal from "./EditScriptModal";
+import './User.css';
 
 const MyTable = withTableActions(Table);
 
 export default function AllScripts() {
-  const [data, setData] = useState([]);
+  const [data, setData]       = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [current, setCurrent] = useState(null);
 
+  // Для просмотра
+  const [viewOpen, setViewOpen]     = useState(false);
+  const [viewScript, setViewScript] = useState(null);
+
+  // Для редактирования
+  const [editOpen, setEditOpen]     = useState(false);
+  const [editScript, setEditScript] = useState(null);
+
+  // Загрузка таблицы
   useEffect(() => {
     fetch("/api/scripts")
       .then(res => res.json())
       .then(scripts =>
         setData(scripts.map(s => ({
           id: s.id,
-          Название: s.name,
-          Описание: s.description || "—",
-          Путь: s.path,
+          Название:    s.name,
+          Путь:        s.path,
+          Тег:         s.tag    || "—",
+          Приложение:  s.app    || "—",
         })))
       )
       .catch(e => toaster.add({ title: "Ошибка", content: e.message, theme: "danger" }))
@@ -29,30 +40,41 @@ export default function AllScripts() {
   }, []);
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Вы уверены, что хотите удалить этот скрипт?")) {
+    // берём объект скрипта перед удалением
+    const script = data.find(item => item.id === id);
+
+    if (!window.confirm(`Удалить скрипт "${script?.Название}"?`)) {
       return;
     }
+
     try {
       const res = await fetch(`/api/scripts/${id}`, { method: "DELETE" });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ detail: res.statusText }));
         throw new Error(err.detail || res.statusText);
       }
-      // обновляем локальный стэйт
-      setData(prev => prev.filter(item => item.id !== id));
-      toaster.add({ title: "Готово", content: "Скрипт удалён", theme: "success" });
+      // удаляем из локального списка
+      setData(d => d.filter(item => item.id !== id));
+
+      // показываем тост с настоящим названием
+      toaster.add({
+        title: script?.Название || `#${id}`,
+        content: "Скрипт удалён",
+        theme: "warning",
+      });
     } catch (e) {
       toaster.add({ title: "Ошибка", content: e.message, theme: "danger" });
     }
   };
 
-  if (loading) return <Spin size="l" />;
-
   const getRowActions = item => [
     {
       text: "Изменить",
       icon: <Icon data={PencilToSquare} size={16} />,
-      handler: () => { /* TODO: редактирование */ },
+      handler: () => {
+        setEditScript(item);
+        setEditOpen(true);
+      },
     },
     {
       text: "Удалить",
@@ -62,6 +84,14 @@ export default function AllScripts() {
     },
   ];
 
+  if (loading) {
+    return (
+      <div className="loader">
+        <Loader size="l" />
+      </div>
+    );
+  }
+
   return (
     <div className="create">
       <Text variant="display-1">Скрипты</Text>
@@ -69,19 +99,44 @@ export default function AllScripts() {
         <MyTable
           data={data}
           columns={[
-            { id: "id", title: "#", align: "center" },
-            { id: "Название", title: "Название", align: "center" },
-            { id: "Описание", title: "Описание", align: "center" },
-            { id: "Путь", title: "Путь", align: "center" },
+            { id: "id",          title: "#" },
+            { id: "Название",    title: "Название" },
+            { id: "Путь",        title: "Путь" },
+            { id: "Тег",         title: "Тег" },
+            { id: "Приложение",  title: "Приложение" },
           ]}
           selectable
           selectedIds={selectedIds}
           onSelectionChange={setSelectedIds}
           getRowActions={getRowActions}
           rowActionsSize="l"
-          onRowClick={item => { setCurrent(item); setModalOpen(true); }}
+          onRowClick={item => {
+            setViewScript(item);
+            setViewOpen(true);
+          }}
         />
-        <ScriptInfo open={modalOpen} onClose={() => setModalOpen(false)} script={current} />
+
+        {/* Модалка просмотра */}
+        <ScriptInfo
+          open={viewOpen}
+          onClose={() => setViewOpen(false)}
+          script={viewScript}
+        />
+
+        {/* Модалка редактирования */}
+        <EditScriptModal
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+          script={editScript}
+          onSave={(updated) => {
+            setData(d => d.map(r =>
+              r.id === updated.id
+                ? { ...r, Описание: updated.description }
+                : r
+            ));
+            setEditOpen(false);
+          }}
+        />
       </div>
     </div>
   );

@@ -9,3 +9,5 @@ class Script(Base):
     description = Column(Text, nullable=True)
     path = Column(String(500), nullable=False)
     template_id = Column(Integer, nullable=False)
+    tag = Column(String(200), nullable=False)
+    app = Column(String(200), nullable=False)

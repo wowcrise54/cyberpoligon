@@ -9,20 +9,23 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 
-def create_template(name: str, description: str, playbook_path: str) -> dict:
+def create_template(name: str, description: str, playbook_path: str, tag: str, app: str) -> dict:
     repo_id        = extract_id(get_repositories())
     inventory_id   = extract_id(get_inventory())
     environment_id = extract_id(get_environment())
 
     payload = {
         "name":          name,
-        "app": "ansible",
+        "app": app,
         "description":   description,
         "repository_id": repo_id,
         "playbook":      playbook_path,     # ✔ правильное имя поля
         "inventory_id":  inventory_id,
         "environment_id": environment_id,
-        "arguments": "[]",                  # либо уберите, если не нужны
+        "arguments": "[]",
+        "task_params": {
+            "tags": [tag],
+        }
     }
 
     resp = requests.post(f"{BASE_URL}/project/{PROJECT_ID}/templates",
