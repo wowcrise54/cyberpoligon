@@ -1,3 +1,4 @@
+// Scripts.jsx
 import React, { useState, useEffect } from "react";
 import { Icon, Table, withTableActions, Spin } from "@gravity-ui/uikit";
 import { toaster } from "@gravity-ui/uikit/toaster-singleton";
@@ -7,59 +8,75 @@ import ScriptInfo from "./ScriptInfo";
 const MyTable = withTableActions(Table);
 
 const columns = [
-  { id: "id",           title: "#",               align: "center" },
-  { id: "Название",     title: "Название скрипта" },
-  { id: "Тег",          title: "Тег" },
-  { id: "Приложение",   title: "Приложение" },
-  { id: "Состояние",    title: "Состояние" },
-  { id: "Статус",       title: "Статус" },
+  { id: "id",         title: "#",               align: "center" },
+  { id: "Название",   title: "Название скрипта" },
+  { id: "Тег",        title: "Тег" },
+  { id: "Приложение", title: "Приложение" },
+  { id: "Состояние",  title: "Состояние" },
+  { id: "Статус",     title: "Статус" },
 ];
 
-export default function ScriptsTable() {
+export default function ScriptsTable({ osType }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
-  // 1) Фетчим список скриптов
+  // Фетчим список скриптов и фильтруем по текущему osType
   useEffect(() => {
+    // Словарь 'тег' → список подстрок, которые могут встречаться в osType
+    const tagToOs = {
+      deb:     ["debian", "ubuntu", "kali", "astra"],
+      rpm:     ["centos", "redhat", "oracle"],
+      dnf:     ["fedora"],
+      windows: ["windows"],
+    };
+
+    // Проверяет, подходит ли скрипт с данным тегом для текущей ОС
+    const isAllowed = (tag) => {
+      const targets = tagToOs[tag] || [];
+      const os = osType?.toLowerCase() || "";
+      return targets.some((substr) => os.includes(substr));
+    };
+
+    setLoading(true);
     fetch("/api/scripts")
-      .then(res => {
+      .then((res) => {
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}`);
         }
         return res.json();
       })
-      .then(scripts => {
+      .then((scripts) => {
+        // Фильтруем только те скрипты, у которых тег соответствует текущей osType
+        const filtered = scripts.filter((s) => isAllowed(s.tag));
         setData(
-          scripts.map(s => ({
-            id: s.id,
-            Название:    s.name,
-            Тег:         s.tag    || "—",
-            Приложение:  s.app    || "—",
-            Состояние:   "-",
-            Статус:      "Не установлен",
+          filtered.map((s) => ({
+            id:         s.id,
+            Название:   s.name,
+            Тег:        s.tag    || "—",
+            Приложение: s.app    || "—",
+            Состояние:  "-",
+            Статус:     "Не установлен",
           }))
         );
       })
-      .catch(e => {
+      .catch((e) => {
         toaster.add({ title: "Ошибка", content: e.message, theme: "danger" });
       })
       .finally(() => {
         setLoading(false);
       });
-  }, []);
+  }, [osType]);
 
-  // 2) Установка скрипта (пост и polling)
+  // Запуск скрипта: POST + poll
   const handleInstall = async (item) => {
-    // ставим спиннер
-    setData(prev =>
-      prev.map(r =>
+    setData((prev) =>
+      prev.map((r) =>
         r.id === item.id ? { ...r, Состояние: <Spin size="xs" /> } : r
       )
     );
-
     try {
       const createRes = await fetch("/api/run_playbook", {
         method: "POST",
@@ -79,45 +96,46 @@ export default function ScriptsTable() {
           );
           if (!statusRes.ok) throw new Error(`HTTP ${statusRes.status}`);
           const { status, output } = await statusRes.json();
-
-          if (status === "pending" || status === "running") return;
-
-          clearInterval(timer);
-
           if (status === "success") {
-            setData(prev =>
-              prev.map(r =>
+            clearInterval(timer);
+            setData((prev) =>
+              prev.map((r) =>
                 r.id === item.id
-                  ? { ...r, Состояние: "-", Статус: "Установлен" }
+                  ? { ...r, Состояние: output, Статус: "Установлен" }
                   : r
               )
             );
-            toaster.add({
-              title: item.Название,
-              content: "Скрипт успешно установлен",
-              theme: "success",
-            });
+          } else if (status === "running") {
+            // продолжаем ждать
           } else {
-            const errMsg = output?.error || JSON.stringify(output);
-            setData(prev =>
-              prev.map(r =>
+            clearInterval(timer);
+            setData((prev) =>
+              prev.map((r) =>
                 r.id === item.id
-                  ? { ...r, Состояние: `Ошибка: ${errMsg}`, Статус: "Не установлен" }
+                  ? {
+                      ...r,
+                      Состояние: `Ошибка: ${output}`,
+                      Статус: "Не установлен",
+                    }
                   : r
               )
             );
             toaster.add({
               title: item.Название,
-              content: `Ошибка установки: ${errMsg}`,
+              content: `Ошибка установки: ${output}`,
               theme: "danger",
             });
           }
         } catch (e) {
           clearInterval(timer);
-          setData(prev =>
-            prev.map(r =>
+          setData((prev) =>
+            prev.map((r) =>
               r.id === item.id
-                ? { ...r, Состояние: `Ошибка: ${e.message}`, Статус: "Не установлен" }
+                ? {
+                    ...r,
+                    Состояние: `Ошибка: ${e.message}`,
+                    Статус: "Не установлен",
+                  }
                 : r
             )
           );
@@ -129,55 +147,42 @@ export default function ScriptsTable() {
         }
       }, 3000);
     } catch (error) {
-      setData(prev =>
-        prev.map(r =>
+      setData((prev) =>
+        prev.map((r) =>
           r.id === item.id
-            ? { ...r, Состояние: `Ошибка: ${error.message}`, Статус: "Не установлен" }
+            ? {
+                ...r,
+                Состояние: `Ошибка: ${error.message}`,
+                Статус: "Не установлен",
+              }
             : r
         )
       );
-      toaster.add({
-        title: item.Название,
-        content: `Ошибка запуска: ${error.message}`,
-        theme: "danger",
-      });
     }
   };
 
-  // 3) «Удаление» скрипта (помечаем статусом)
-  const handleDelete = (item) => {
-    setData(prev =>
-      prev.map(r =>
-        r.id === item.id
-          ? { ...r, Состояние: "-", Статус: "Отсутствует" }
-          : r
-      )
-    );
-    toaster.add({
-      title: item.Название,
-      content: "Скрипт удалён",
-      theme: "danger",
-    });
-  };
-
-  const getRowActions = item => [
-    {
-      text: "Установить",
-      icon: <Icon data={ArrowDownToLine} size={16} />,
-      handler: () => handleInstall(item),
-    },
-    {
-      text: "Удалить",
-      icon: <Icon data={TrashBin} size={16} />,
-      handler: () => handleDelete(item),
-      theme: "danger",
-    },
-  ];
-
-  const handleRowClick = item => {
+  const handleRowClick = (id) => {
+    const item = data.find((r) => r.id === id);
     setSelectedItem(item);
     setIsModalOpen(true);
   };
+
+  const getRowActions = (row) => [
+    {
+      id: "run",
+      title: "Запустить",
+      icon: ArrowDownToLine,
+      handler: () => handleInstall(row),
+    },
+    {
+      id: "delete",
+      title: "Удалить",
+      icon: TrashBin,
+      handler: () => {
+        setData((prev) => prev.filter((r) => r.id !== row.id));
+      },
+    },
+  ];
 
   if (loading) {
     return <Spin size="l" />;
@@ -194,7 +199,6 @@ export default function ScriptsTable() {
         rowActionsSize="l"
         onRowClick={handleRowClick}
       />
-
       <ScriptInfo
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}

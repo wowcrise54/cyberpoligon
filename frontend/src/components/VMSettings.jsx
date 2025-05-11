@@ -214,7 +214,7 @@ const VMSettings = () => {
 
           <div className="vm-params">
 
-            <Scripts/>
+            <Scripts osType={vm.os_type} />
           </div>
 
         </div>

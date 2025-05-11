@@ -14,6 +14,9 @@ while ! nc -z "${DB_HOST}" "${DB_PORT}"; do
 done
 
 export PGPASSWORD="${DB_PASS}"
+echo "=== Dropping existing alembic_version type (if any) ==="
+psql -h "${DB_HOST}" -U "${DB_USER}" -d "${DB_NAME}" -c "DROP TYPE IF EXISTS alembic_version CASCADE;" || true
+
 
 echo "=== Running Alembic migrations ==="
 alembic upgrade head
