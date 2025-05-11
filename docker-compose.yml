@@ -105,6 +105,7 @@ services:
     volumes:
       - semaphore_data:/var/lib/semaphore
       - ./init.sh:/init.sh:ro
+      - ./.env:/tmp/.env
     ports:
       - 3000:3000  
     depends_on:

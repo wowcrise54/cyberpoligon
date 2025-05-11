@@ -28,6 +28,12 @@ api() {
        -H "Accept: application/json" "$@"
 }
 
+chmod a+rwx /tmp || echo "⚠ Не смогли сделать /tmp доступным"
+
+# 2) Убедимся, что внутри есть .env, и он тоже открыт
+[ -f /tmp/.env ] || touch /tmp/.env
+chmod a+rw /tmp/.env || echo "⚠ Не смогли сделать /tmp/.env доступным"
+
 ########################################################################
 # 0. Запуск UI и получение API-токена
 ########################################################################
@@ -50,6 +56,24 @@ TOKEN=$(curl -sS -L -b /tmp/cookiejar -X POST "$API_BASE/user/tokens" \
          | jq -r 'if type=="array" then .[-1].id else .id end')
 [ -n "$TOKEN" ] || die "Не смогли получить токен"
 log "TOKEN=$TOKEN"
+
+ENV_FILE=/tmp/.env
+TMP_FILE=${ENV_FILE}.tmp
+
+# Удаляем старую строку и пишем все в промежуточный файл
+grep -v '^SEMAPHORE_TOKEN=' "$ENV_FILE" > "$TMP_FILE" || true
+
+# Добавляем новую строку
+printf 'SEMAPHORE_TOKEN=%s\n' "$TOKEN" >> "$TMP_FILE"
+
+# Перезаписываем оригинал (truncate+write на том же inode)
+cat "$TMP_FILE" > "$ENV_FILE"
+
+# Чистим за собой
+rm -f "$TMP_FILE"
+
+log "✅ Перезаписан $ENV_FILE новым токеном"
+
 
 ########################################################################
 # 1. ensure_project  (idempotent)
