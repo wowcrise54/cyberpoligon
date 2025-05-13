@@ -27,6 +27,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    volumes:
+      - ./ansible/:/app/ansible/:ro
     env_file:
       - .env
     environment:
