@@ -1,6 +1,9 @@
 - name: Install some pkg
   hosts: test_debian
   become: true
+  tags:
+    - create_user_with_passwd
+  
   tasks:
     - name: Install pkg
       ansible.builtin.apt:
