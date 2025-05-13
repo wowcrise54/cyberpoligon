@@ -4,6 +4,4 @@
   tasks:
     - name: Install pkg
       ansible.builtin.apt:
-        pkg:
-          - htop
-          - nginx
+        pkg: "{{ pkg_list }}"
