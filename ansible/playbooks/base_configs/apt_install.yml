@@ -2,7 +2,7 @@
   hosts: test_debian
   become: true
   tags:
-    - create_user_with_passwd
+    - deb
   
   tasks:
     - name: Install pkg
