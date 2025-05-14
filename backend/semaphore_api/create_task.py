@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Конфигурация для доступа к API Semaphore (захардкоженные параметры)
-BASE_URL = "http://192.168.195.163:3000/api"  # адрес сервера Semaphore
+BASE_URL = "http://192.168.220.197:3000/api"  # адрес сервера Semaphore
 PROJECT_ID = 1
 TOKEN = os.getenv("SEMAPHORE_TOKEN")  # токен доступа к API Semaphore
 

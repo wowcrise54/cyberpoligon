@@ -29,6 +29,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # прокидываем все роуты авторизации под /api
 app.include_router(users_router, prefix="/api")
 
@@ -43,6 +44,7 @@ class VMConfig(BaseModel):
 
 class PlaybookRequest(BaseModel):
     template_name: str
+    variables: dict[str, str] = {}    # здесь на выходе то, что задаст юзер
 
 
 @app.post("/create_vm/")
@@ -76,7 +78,7 @@ async def get_vms_raw():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/run_playbook")
+@app.post("/run_playbook/")
 async def create_playbook_task(req: PlaybookRequest):
     try:
         template_id = find_template_id_by_name(req.template_name)
@@ -91,6 +93,7 @@ async def create_playbook_task(req: PlaybookRequest):
             "environment_id": extract_id(environment),
             "inventory_id": extract_id(inventory),
             "repository_ids": [r["id"] for r in repos if isinstance(r, dict)],
+            "variables": req.variables,    # прокидываем их в Semaphore
         }
 
         task = create_task(payload)
@@ -101,7 +104,7 @@ async def create_playbook_task(req: PlaybookRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/run_playbook/status")
+@app.get("/run_playbook/status/")
 async def playbook_status(task_id: int):
     try:
         status_info = get_task_status(task_id)

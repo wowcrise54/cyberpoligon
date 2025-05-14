@@ -1,15 +1,10 @@
 // ScriptsTable.jsx
 import React, { useState, useEffect } from "react";
-import {
-  Icon,
-  Table,
-  withTableActions,
-  Spin,
-} from "@gravity-ui/uikit";
+import { Icon, Table, withTableActions, Spin } from "@gravity-ui/uikit";
 import { toaster } from "@gravity-ui/uikit/toaster-singleton";
 import { TrashBin, ArrowDownToLine } from "@gravity-ui/icons";
 import ScriptInfo from "./ScriptInfo";
-import InstallModal from "./InstallModal";
+import DynamicModal from "./DynamicModal";
 
 const MyTable = withTableActions(Table);
 
@@ -27,14 +22,15 @@ export default function ScriptsTable({ osType }) {
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState([]);
 
-  // Для информации
+  // Модалка информации
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [selectedScript, setSelectedScript] = useState(null);
 
-  // Для установки
+  // Динамическая модалка для установки
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
-  const [installTarget, setInstallTarget] = useState(null);
-  const [installParams, setInstallParams] = useState({ username: "" });
+  const [installModalVars, setInstallModalVars] = useState([]);
+  const [installModalParams, setInstallModalParams] = useState({});
+  const [scriptForInstall, setScriptForInstall] = useState(null);
 
   // Карта тегов → ОС
   const tagToOs = {
@@ -50,7 +46,7 @@ export default function ScriptsTable({ osType }) {
     );
   };
 
-  // Загрузка и фильтрация скриптов
+  // Загрузка списка скриптов
   useEffect(() => {
     setLoading(true);
     fetch("/api/scripts")
@@ -73,36 +69,64 @@ export default function ScriptsTable({ osType }) {
         );
       })
       .catch((e) => {
-        toaster.add({
-          title: "Ошибка загрузки скриптов",
-          content: e.message,
-          theme: "danger",
-        });
+        toaster.add({ title: "Ошибка загрузки скриптов", content: e.message, theme: "danger" });
       })
       .finally(() => setLoading(false));
   }, [osType]);
 
-  // Открыть форму установки
-  const openInstallModal = (item) => {
-    setInstallTarget(item);
-    setInstallParams({ username: "" });
-    setIsInstallModalOpen(true);
+  // Открыть инфо-модалку
+  const handleRowClick = (item) => {
+    setSelectedScript(item._raw || item);
+    setIsInfoModalOpen(true);
   };
 
-  // Логика установки с polling
-  const handleInstall = async (item, params) => {
-    setIsInstallModalOpen(false);
+  // Удаление скрипта
+  const handleDelete = (item) => {
+    setData((prev) =>
+      prev.map((r) =>
+        r.id === item.id
+          ? { ...r, Состояние: "-", Статус: "Отсутствует" }
+          : r
+      )
+    );
+    toaster.add({ title: item.Название, content: "Скрипт удалён", theme: "danger" });
+  };
 
+  // Запуск: получить переменные и открыть динамическую модалку
+  const handleRunClick = async (item) => {
+    setScriptForInstall(item);
+    try {
+      const scriptId = item._raw?.id || item.id;
+      const res = await fetch(`/api/scripts/${scriptId}/survey_vars`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const defs = await res.json();
+      setInstallModalVars(defs);
+
+      // Инициализация параметров
+      const init = {};
+      defs.forEach((v) => {
+        init[v.name] = v.values && v.values.length > 0 ? v.values[0] : "";
+      });
+      setInstallModalParams(init);
+      setIsInstallModalOpen(true);
+    } catch (e) {
+      toaster.add({ title: "Ошибка параметров", content: e.message, theme: "danger" });
+    }
+  };
+
+  // Отправка и polling статуса
+  const handleModalSubmit = async () => {
+    setIsInstallModalOpen(false);
+    const item = scriptForInstall;
     // Показать спиннер в таблице
     setData((prev) =>
       prev.map((r) =>
         r.id === item.id ? { ...r, Состояние: <Spin size="xs" /> } : r
       )
     );
-
     try {
-      const body = { template_name: item.Название, ...params };
-      const createRes = await fetch("/api/run_playbook", {
+      const body = { template_name: item.Название, variables: installModalParams };
+      const createRes = await fetch("/run_playbook", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -112,21 +136,17 @@ export default function ScriptsTable({ osType }) {
         throw new Error(err.detail || `HTTP ${createRes.status}`);
       }
       const { task_id } = await createRes.json();
+      toaster.add({ title: item.Название, content: `Задача ${task_id} запущена`, theme: "success" });
 
       const timer = setInterval(async () => {
         try {
           const statusRes = await fetch(
-            `/api/run_playbook/status?task_id=${task_id}`
+            `/run_playbook/status?task_id=${task_id}`
           );
           if (!statusRes.ok) throw new Error(`HTTP ${statusRes.status}`);
           const { status, output } = await statusRes.json();
-
-          if (status === "running" || status === "pending") {
-            return;
-          }
-
+          if (status === "running" || status === "pending") return;
           clearInterval(timer);
-
           if (status === "success") {
             setData((prev) =>
               prev.map((r) =>
@@ -135,11 +155,7 @@ export default function ScriptsTable({ osType }) {
                   : r
               )
             );
-            toaster.add({
-              title: item.Название,
-              content: "Скрипт успешно установлен",
-              theme: "success",
-            });
+            toaster.add({ title: item.Название, content: "Скрипт успешно установлен", theme: "success" });
           } else {
             const errMsg = output?.error || output;
             setData((prev) =>
@@ -149,80 +165,37 @@ export default function ScriptsTable({ osType }) {
                   : r
               )
             );
-            toaster.add({
-              title: item.Название,
-              content: `Ошибка установки: ${errMsg}`,
-              theme: "danger",
-            });
+            toaster.add({ title: item.Название, content: `Ошибка установки: ${errMsg}`, theme: "danger" });
           }
         } catch (e) {
           clearInterval(timer);
           setData((prev) =>
             prev.map((r) =>
               r.id === item.id
-                ? {
-                    ...r,
-                    Состояние: `Ошибка polling: ${e.message}`,
-                    Статус: "Не установлен",
-                  }
+                ? { ...r, Состояние: `Ошибка polling: ${e.message}`, Статус: "Не установлен" }
                 : r
             )
           );
-          toaster.add({
-            title: item.Название,
-            content: `Ошибка polling: ${e.message}`,
-            theme: "danger",
-          });
+          toaster.add({ title: item.Название, content: `Ошибка polling: ${e.message}`, theme: "danger" });
         }
       }, 3000);
     } catch (error) {
       setData((prev) =>
         prev.map((r) =>
           r.id === item.id
-            ? {
-                ...r,
-                Состояние: `Ошибка запуска: ${error.message}`,
-                Статус: "Не установлен",
-              }
+            ? { ...r, Состояние: `Ошибка запуска: ${error.message}`, Статус: "Не установлен" }
             : r
         )
       );
-      toaster.add({
-        title: item.Название,
-        content: `Ошибка запуска: ${error.message}`,
-        theme: "danger",
-      });
+      toaster.add({ title: item.Название, content: `Ошибка запуска: ${error.message}`, theme: "danger" });
     }
   };
 
-  // Удалить (пометить отсутствующим)
-  const handleDelete = (item) => {
-    setData((prev) =>
-      prev.map((r) =>
-        r.id === item.id
-          ? { ...r, Состояние: "-", Статус: "Отсутствует" }
-          : r
-      )
-    );
-    toaster.add({
-      title: item.Название,
-      content: "Скрипт удалён",
-      theme: "danger",
-    });
-  };
-
-  // Показать инфо-модалку
-  const handleRowClick = (item) => {
-    setSelectedScript(item._raw || item);
-    setIsInfoModalOpen(true);
-  };
-
-  // Действия для каждой строки
   const getRowActions = (item) => [
     {
       text: "Установить",
       icon: <Icon data={ArrowDownToLine} size={16} />,
-      handler: () => openInstallModal(item),
+      handler: () => handleRunClick(item),
     },
     {
       text: "Удалить",
@@ -248,21 +221,19 @@ export default function ScriptsTable({ osType }) {
         onRowClick={handleRowClick}
       />
 
-      {/* Модалка с описанием */}
       <ScriptInfo
         open={isInfoModalOpen}
         onClose={() => setIsInfoModalOpen(false)}
         script={selectedScript}
       />
 
-      {/* Модалка параметров установки */}
-      <InstallModal
+      <DynamicModal
         open={isInstallModalOpen}
         onClose={() => setIsInstallModalOpen(false)}
-        script={installTarget}
-        params={installParams}
-        onParamsChange={setInstallParams}
-        onSubmit={() => handleInstall(installTarget, installParams)}
+        vars={installModalVars}
+        params={installModalParams}
+        onChange={setInstallModalParams}
+        onSubmit={handleModalSubmit}
       />
     </>
   );

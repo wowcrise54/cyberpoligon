@@ -12,6 +12,7 @@ from database.auth import create_access_token
 from database.auth_dependencies import get_current_user
 from database.scripts.models import Script
 from semaphore_api.template import create_template, delete_template
+from semaphore_api.create_task import get_template
 
 router = APIRouter(tags=["auth"])
 
@@ -326,3 +327,27 @@ async def update_script(
 
     # 3) Возвращаем обновлённый объект
     return script
+
+class SurveyVar(BaseModel):
+    name: str
+    title: str
+    description: str
+    required: bool
+    type: str
+    values: list[str]
+
+@router.get("/scripts/{script_id}/survey_vars", response_model=list[SurveyVar])
+async def get_survey_vars(
+    script_id: int,
+    session: AsyncSession = Depends(get_session),
+    # Убрали зависимость от get_current_user, чтобы не требовать аутентификации
+):
+    # 1) Забираем из БД шаблон
+    result = await session.execute(select(Script).where(Script.id == script_id))
+    script = result.scalar_one_or_none()
+    if not script:
+        raise HTTPException(status_code=404, detail="Скрипт не найден")
+    # 2) Получаем описание survey_vars из Semaphore
+    tpl = get_template(script.template_id)
+    # Вернём пустой список, если в шаблоне переменные не описаны
+    return tpl.get("survey_vars", [])
