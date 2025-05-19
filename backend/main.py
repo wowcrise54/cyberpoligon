@@ -78,7 +78,7 @@ async def get_vms_raw():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/run_playbook/")
+@app.post("/api/run_playbook")
 async def create_playbook_task(req: PlaybookRequest):
     try:
         template_id = find_template_id_by_name(req.template_name)
@@ -104,7 +104,7 @@ async def create_playbook_task(req: PlaybookRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/run_playbook/status/")
+@app.get("/api/run_playbook/status")
 async def playbook_status(task_id: int):
     try:
         status_info = get_task_status(task_id)

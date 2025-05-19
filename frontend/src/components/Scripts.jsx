@@ -126,7 +126,7 @@ export default function ScriptsTable({ osType }) {
     );
     try {
       const body = { template_name: item.Название, variables: installModalParams };
-      const createRes = await fetch("/run_playbook", {
+      const createRes = await fetch("/api/run_playbook", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -141,7 +141,7 @@ export default function ScriptsTable({ osType }) {
       const timer = setInterval(async () => {
         try {
           const statusRes = await fetch(
-            `/run_playbook/status?task_id=${task_id}`
+            `/api/run_playbook/status?task_id=${task_id}`
           );
           if (!statusRes.ok) throw new Error(`HTTP ${statusRes.status}`);
           const { status, output } = await statusRes.json();
