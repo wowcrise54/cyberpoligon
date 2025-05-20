@@ -121,7 +121,7 @@ export default function ScriptsTable({ osType }) {
     // Показать спиннер в таблице
     setData((prev) =>
       prev.map((r) =>
-        r.id === item.id ? { ...r, Состояние: <Spin size="xs" /> } : r
+        r.id === item.id ? { ...r, Состояние: <Spin size="xs" view="normal" /> } : r
       )
     );
     try {
@@ -145,7 +145,7 @@ export default function ScriptsTable({ osType }) {
           );
           if (!statusRes.ok) throw new Error(`HTTP ${statusRes.status}`);
           const { status, output } = await statusRes.json();
-          if (status === "running" || status === "pending") return;
+          if (["running", "pending", "waiting"].includes(status)) return;
           clearInterval(timer);
           if (status === "success") {
             setData((prev) =>
@@ -156,7 +156,7 @@ export default function ScriptsTable({ osType }) {
               )
             );
             toaster.add({ title: item.Название, content: "Скрипт успешно установлен", theme: "success" });
-          } else {
+          } else if (status === "failure" || status === "error") {
             const errMsg = output?.error || output;
             setData((prev) =>
               prev.map((r) =>
