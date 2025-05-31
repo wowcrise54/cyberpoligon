@@ -2,6 +2,8 @@
 - name: Verify create_user_with_passwd playbook
   hosts: test_debian
   become: true
+  tags:
+    - deb
 
   tasks:
     - name: Read passwd entry for {{ example_user }}

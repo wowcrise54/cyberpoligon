@@ -2,6 +2,8 @@
 - name: Verify apt_install playbook
   hosts: test_debian
   become: true
+  tags:
+    - deb
 
   tasks:
     - name: Collect package facts
