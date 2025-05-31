@@ -1,0 +1,6 @@
+---
+# 1️⃣ Выполняем боевой плейбук
+- import_playbook: "../playbooks/base_configs/apt_install.yml"
+
+# 2️⃣ Сразу же — проверочный
+- import_playbook: "../tests/test_apt_install.yml"

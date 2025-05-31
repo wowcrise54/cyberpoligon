@@ -1,0 +1,13 @@
+---
+- name: Verify apt_install playbook
+  hosts: test_debian
+  become: true
+
+  tasks:
+    - name: Collect package facts
+      ansible.builtin.package_facts:
+
+    - name: Assert every requested package is installed
+      ansible.builtin.assert:
+        that: "'{{ item }}' in ansible_facts.packages"
+      loop: "{{ pkg_list | flatten }}"

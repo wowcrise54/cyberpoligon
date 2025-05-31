@@ -1,0 +1,19 @@
+---
+- name: Verify create_user_with_passwd playbook
+  hosts: test_debian
+  become: true
+
+  tasks:
+    - name: Read passwd entry for {{ example_user }}
+      ansible.builtin.getent:
+        database: passwd
+        key: "{{ example_user }}"
+      register: user_entry
+
+    - name: Assert user properties
+      ansible.builtin.assert:
+        that:
+          - user_entry is defined
+          - user_entry.entries | length > 0
+          - (example_uid is defined) and (user_entry.entries[0].uid | int == (example_uid | int))
+          - user_entry.entries[0].dir == example_home
