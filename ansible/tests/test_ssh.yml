@@ -1,6 +1,6 @@
 ---
 - name: Verify ssh hardening
-  hosts: "{{ target_hosts | default('managed_hosts') }}"
+  hosts: test_debian
   become: true
   gather_facts: false
 

@@ -1,6 +1,6 @@
 ---
 - name: Verify ping
-  hosts: "{{ target_hosts | default('managed_hosts') }}"
+  hosts: test_debian
   gather_facts: false
 
   tasks:

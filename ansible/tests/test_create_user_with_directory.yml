@@ -1,6 +1,6 @@
 ---
 - name: Verify create_user_with_directory
-  hosts: "{{ target_hosts | default('managed_hosts') }}"
+  hosts: test_debian
   become: true
   gather_facts: false
 

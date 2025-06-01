@@ -1,6 +1,6 @@
 ---
 - name: Verify apt_install
-  hosts: "{{ target_hosts | default('managed_hosts') }}"
+  hosts: test_debian
   become: true
   gather_facts: false
 
