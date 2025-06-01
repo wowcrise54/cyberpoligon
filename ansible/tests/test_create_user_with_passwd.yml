@@ -1,31 +1,43 @@
 ---
 - name: Verify create_user_with_passwd
-  hosts: test_debian
+  hosts: test_debian          # при желании смените на {{ target_hosts }}
   become: true
   gather_facts: false
 
   tasks:
-    - name: /etc/passwd
+    #################################################################
+    # 1.  Читаем /etc/passwd и /etc/shadow ---------------------------
+    #################################################################
+    - name: Read passwd entry
       ansible.builtin.getent:
         database: passwd
         key: "{{ example_user }}"
       register: pw
       tags: always
 
-    - name: /etc/shadow
+    - name: Read shadow entry
       ansible.builtin.getent:
         database: shadow
         key: "{{ example_user }}"
       register: sh
       tags: always
 
+    #################################################################
+    # 2.  Вынимаем первую (и единственную) запись -------------------
+    #################################################################
+    - name: Extract entries to facts
+      ansible.builtin.set_fact:
+        passwd_entry: "{{ pw.ansible_facts.getent_passwd[example_user][0] }}"
+        shadow_entry: "{{ sh.ansible_facts.getent_shadow[example_user][0] }}"
+      tags: always
+
+    #################################################################
+    # 3.  Финальная валидация ---------------------------------------
+    #################################################################
     - name: Assert account data
       ansible.builtin.assert:
-        vars:
-          p: "{{ pw.ansible_facts.getent_passwd[example_user][0] }}"
-          s: "{{ sh.ansible_facts.getent_shadow[example_user][0] }}"
         that:
-          - p.uid | int == example_uid | int
-          - p.dir == example_home
-          - s.password == example_password_hash
+          - passwd_entry.uid | int == example_uid | int
+          - passwd_entry.dir == example_home
+          - shadow_entry.password == example_password_hash
       tags: always
