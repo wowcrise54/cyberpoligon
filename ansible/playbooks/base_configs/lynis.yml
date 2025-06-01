@@ -1,18 +1,30 @@
-- name: Run Lynis security audit
-  hosts: test_debian
+---
+- name: Run Lynis audit (manual)
+  hosts: "{{ target_hosts | default('managed_hosts') }}"
   become: true
 
+  pre_tasks:
+    - name: Guard lynis_mode variable
+      ansible.builtin.assert:
+        that: lynis_mode is defined
+        fail_msg: "lynis_mode (например '--quick') обязателен"
+      tags: always
+
   tasks:
-    - name: Install Lynis
-      apt:
+    - name: Install lynis
+      ansible.builtin.apt:
         name: lynis
         state: present
-        update_cache: yes
+      tags: [lynis, install]
 
-    - name: Run Lynis audit (quick)
-      shell: lynis audit system --quick
-      register: lynis_report
+    - name: Run lynis
+      ansible.builtin.command: >
+        lynis audit system {{ lynis_mode }}
+      register: lynis_out
+      changed_when: false
+      tags: [lynis, audit]
 
-    - name: Show Lynis summary
-      debug:
-        msg: "{{ lynis_report.stdout_lines | select('search','Hardening index') | list }}"
+    - name: Show hardening index
+      ansible.builtin.debug:
+        msg: "{{ lynis_out.stdout | regex_search('Hardening index.*', multiline=True) }}"
+      tags: [lynis, report]

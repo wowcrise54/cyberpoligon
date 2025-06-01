@@ -1,18 +1,26 @@
-- name: Add user with password
-  hosts: test_debian
+---
+- name: Add user w/ hashed password (manual)
+  hosts: "{{ target_hosts | default('managed_hosts') }}"
   become: true
-  tags:
-    - deb
+
+  pre_tasks:
+    - ansible.builtin.assert:
+        that:
+          - example_user          is defined
+          - example_uid           is defined
+          - example_home          is defined
+          - example_password_hash is defined
+      tags: always
 
   tasks:
-    - name: Add user '{{ example_user }}' with UID and password
+    - name: Create user
       ansible.builtin.user:
-        name: "{{ example_user }}"
-        uid: "{{ example_uid }}"
-        comment: "Example User"
-        home: "{{ example_home }}"
-        create_home: yes
-        shell: /bin/bash
+        name:     "{{ example_user }}"
+        uid:      "{{ example_uid }}"
+        home:     "{{ example_home }}"
         password: "{{ example_password_hash }}"
         update_password: always
-        password_lock: no
+        shell: /bin/bash
+        create_home: yes
+        state: present
+      tags: [user, passwd, create]

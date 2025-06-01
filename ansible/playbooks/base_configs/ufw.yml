@@ -1,24 +1,30 @@
-- name: Check UFW firewall
-  hosts: test_debian
+---
+- name: Configure UFW (manual)
+  hosts: "{{ target_hosts | default('managed_hosts') }}"
   become: true
 
+  pre_tasks:
+    - name: Guard variables
+      ansible.builtin.assert:
+        that: ufw_allow_services is defined and ufw_allow_services|length>0
+      tags: always
+
   tasks:
-    - name: Install ufw if missing
-      apt:
+    - name: Install ufw
+      ansible.builtin.apt:
         name: ufw
         state: present
-        update_cache: yes
+      tags: [ufw, install]
 
-    - name: Ensure UFW is enabled
-      ufw:
+    - name: Default policy deny
+      community.general.ufw:
         state: enabled
+        policy: "{{ ufw_default_policy | default('deny') }}"
+      tags: [ufw, policy]
 
-    - name: Ensure SSH is allowed
-      ufw:
+    - name: Allow services
+      community.general.ufw:
         rule: allow
-        name: OpenSSH
-
-    - name: Ensure HTTP is allowed
-      ufw:
-        rule: allow
-        port: 80
+        name: "{{ item }}"
+      loop: "{{ ufw_allow_services }}"
+      tags: [ufw, allow]

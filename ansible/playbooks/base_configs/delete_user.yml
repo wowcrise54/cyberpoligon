@@ -1,9 +1,17 @@
-- name: Remove a user
-  hosts: test_debian
+---
+- name: Delete user (manual)
+  hosts: "{{ target_hosts | default('managed_hosts') }}"
   become: true
+
+  pre_tasks:
+    - ansible.builtin.assert:
+        that: user_name_to_remove is defined
+      tags: always
+
   tasks:
-    - name: Remove the user
-      user:
-        name: leha1
+    - name: Remove user
+      ansible.builtin.user:
+        name: "{{ user_name_to_remove }}"
+        remove: "{{ remove_home | default(true) | bool }}"
         state: absent
-        remove: yes
+      tags: [user, delete]

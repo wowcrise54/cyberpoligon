@@ -1,16 +1,25 @@
-- name: Add multiple users
-  hosts: test_debian
-  become: true 
-  vars:
-    users:
-      - { name: 'user1', password: '{{ "password1" | password_hash("sha512") }}', groups: 'developers' }
-      - { name: 'user2', password: '{{ "password2" | password_hash("sha512") }}', groups: 'developers' }
-      - { name: 'user3', password: '{{ "password3" | password_hash("sha512") }}', groups: 'developers' }
+---
+- name: Create many users (manual)
+  hosts: "{{ target_hosts | default('managed_hosts') }}"
+  become: true
+
+  pre_tasks:
+    - name: Guard: users list required
+      ansible.builtin.assert:
+        that: users is defined and users|length > 0
+        fail_msg: >
+          'users' должен быть YAML/JSON-списком:
+          - {name: "alice", uid: 2001, groups: ["sudo"]}
+      tags: always
+
   tasks:
-    - name: Add users
-      user:
-        name: "{{ item.name }}"
-        password: "{{ item.password }}"
-        groups: "{{ item.groups }}"
-        append: yes
+    - name: Ensure each user
+      ansible.builtin.user:
+        name:   "{{ item.name | mandatory }}"
+        uid:    "{{ item.uid  | int | mandatory }}"
+        groups: "{{ (item.groups | default([])) | join(',') }}"
+        create_home: yes
+        shell: /bin/bash
+        state: present
       loop: "{{ users }}"
+      tags: [user, loop, create]

@@ -1,10 +1,30 @@
-- name: Install some pkg
-  hosts: test_debian
+---
+- name: Install list of packages (manual input)
+  hosts: "{{ target_hosts | default('managed_hosts') }}"
   become: true
-  tags:
-    - deb
-  
+
+  pre_tasks:
+    - name: Guard: pkg_list must be defined
+      ansible.builtin.assert:
+        that: pkg_list is defined and pkg_list|length > 0
+        fail_msg: "Variable 'pkg_list' (list/строка пакетов) обязательна!"
+      tags: always
+
+    - name: Normalize pkg_list → list
+      ansible.builtin.set_fact:
+        pkg_effective: >-
+          {{ (pkg_list.split(',')|map('trim')|list)
+             if pkg_list is string else pkg_list }}
+      tags: always
+
   tasks:
-    - name: Install pkg
+    - name: Update apt cache
       ansible.builtin.apt:
-        pkg: "{{ pkg_list }}"
+        update_cache: yes
+      tags: [apt, cache]
+
+    - name: Install selected packages
+      ansible.builtin.apt:
+        name: "{{ pkg_effective }}"
+        state: present
+      tags: [apt, install]

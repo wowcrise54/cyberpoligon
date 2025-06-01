@@ -1,8 +1,20 @@
-- name: Create a group on the target host
-  hosts: test_debian
+---
+- name: Create group (manual)
+  hosts: "{{ target_hosts | default('managed_hosts') }}"
   become: true
+
+  pre_tasks:
+    - name: Guard variables
+      ansible.builtin.assert:
+        that:
+          - group_name is defined
+          - group_gid  is defined
+      tags: always
+
   tasks:
-    - name: Create a group
+    - name: Ensure group exists
       ansible.builtin.group:
-        name: npis
+        name: "{{ group_name }}"
+        gid:  "{{ group_gid }}"
         state: present
+      tags: [group, create]

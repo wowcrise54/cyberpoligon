@@ -1,13 +1,32 @@
-- name: Create a user with a specific UID and home directory
-  hosts: test_debian
-  become: true  
+---
+- name: Create user + home (manual)
+  hosts: "{{ target_hosts | default('managed_hosts') }}"
+  become: true
+
+  pre_tasks:
+    - name: Guard vars
+      ansible.builtin.assert:
+        that:
+          - user_name is defined
+          - user_uid  is defined
+          - user_home is defined
+      tags: always
+
   tasks:
-    - name: Add user 'customuser' with a specific UID and home directory
-      user:
-        name: customuser
+    - name: Add user
+      ansible.builtin.user:
+        name:  "{{ user_name }}"
+        uid:   "{{ user_uid }}"
+        home:  "{{ user_home }}"
+        create_home: yes
+        shell: /bin/bash
         state: present
-        uid: 1500
-        home: "/opt/customuser"
-        createhome: yes
-        shell: "/bin/bash"
-        comment: "Custom User with specific UID"
+      tags: [user, create]
+
+    - name: Set home perms
+      ansible.builtin.file:
+        path: "{{ user_home }}"
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+        mode: "0750"
+      tags: [user, perms]

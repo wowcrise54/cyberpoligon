@@ -1,28 +1,22 @@
 ---
-- name: Verify apt_install playbook
-  hosts: test_debian
-  become: true            # нужны root-права, чтобы читать dpkg
-  gather_facts: false     # стандартные факты нам не нужны
+- name: Verify apt_install
+  hosts: "{{ target_hosts | default('managed_hosts') }}"
+  become: true
+  gather_facts: false
 
   tasks:
-    # 1. Снимаем факты о пакетах
-    - name: Collect package facts
+    - name: Package facts
       ansible.builtin.package_facts:
       tags: always
 
-    # 2. Приводим pkg_list к списку:
-    #    • "curl,htop"  → ["curl","htop"]
-    #    • ["curl","htop"] остаётся списком
-    - name: Normalize pkg_list to list
+    - name: List → pkg_effective
       ansible.builtin.set_fact:
         pkg_effective: >-
-          {{ (pkg_list.split(',') | map('trim') | list)
-             if (pkg_list is string)
-             else (pkg_list | list) }}
+          {{ (pkg_list.split(',')|map('trim')|list)
+             if pkg_list is string else pkg_list }}
       tags: always
 
-    # 3. Проверяем наличие каждого пакета
-    - name: Assert every requested package is installed
+    - name: Assert every package is installed
       ansible.builtin.assert:
         that: "'{{ item }}' in ansible_facts.packages"
       loop: "{{ pkg_effective }}"

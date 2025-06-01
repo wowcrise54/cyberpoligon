@@ -1,21 +1,23 @@
-- name: Установка и настройка Apache на Ubuntu Server
-  hosts: test_debian
+---
+- name: Install Apache (manual)
+  hosts: "{{ target_hosts | default('managed_hosts') }}"
   become: true
-  vars:
-    apache_pkg: apache2
+
+  pre_tasks:
+    - ansible.builtin.assert:
+        that: package_name is defined
+      tags: always
 
   tasks:
-    - name: Обновить кеш пакетов APT
+    - name: Install apache
       ansible.builtin.apt:
-        update_cache: yes
-
-    - name: Установить {{ apache_pkg }}
-      ansible.builtin.apt:
-        name: "{{ apache_pkg }}"
+        name: "{{ package_name }}"
         state: present
+      tags: [apache, install]
 
-    - name: Запустить и включить сервис Apache
+    - name: Enable service
       ansible.builtin.service:
-        name: "{{ apache_pkg }}"
+        name: "{{ package_name }}"
         state: started
         enabled: yes
+      tags: [apache, service]

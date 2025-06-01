@@ -1,24 +1,38 @@
-- name: Audit SSH configuration
-  hosts: test_debian
+---
+- name: SSH hardening (manual)
+  hosts: "{{ target_hosts | default('managed_hosts') }}"
   become: true
 
+  pre_tasks:
+    - ansible.builtin.assert:
+        that:
+          - permit_root is defined
+          - ssh_protocol is defined
+      tags: always
+
+  vars:
+    sshd_config_path: /etc/ssh/sshd_config
+
   tasks:
-    - name: Ensure SSH RootLogin is disabled
+    - name: PermitRootLogin
       ansible.builtin.lineinfile:
-        path: /etc/ssh/sshd_config
+        path: "{{ sshd_config_path }}"
         regexp: '^#?PermitRootLogin'
-        line: 'PermitRootLogin no'
-      register: rootlogin_cfg
+        line:  "PermitRootLogin {{ permit_root }}"
+      notify: restart ssh
+      tags: [ssh, root]
 
-    - name: Ensure only Protocol 2 is allowed
+    - name: Protocol
       ansible.builtin.lineinfile:
-        path: /etc/ssh/sshd_config
+        path: "{{ sshd_config_path }}"
         regexp: '^#?Protocol'
-        line: 'Protocol 2'
-      register: protocol_cfg
+        line:  "Protocol {{ ssh_protocol }}"
+      notify: restart ssh
+      tags: [ssh, proto]
 
-    - name: Restart SSH if any change occurred
+  handlers:
+    - name: restart ssh
       ansible.builtin.service:
-        name: ssh
+        name: "{{ ssh_service | default('ssh') }}"
         state: restarted
-      when: rootlogin_cfg.changed or protocol_cfg.changed
+      tags: [ssh, service]

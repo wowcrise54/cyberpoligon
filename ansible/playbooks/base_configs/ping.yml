@@ -1,6 +1,9 @@
-- name: Проверка доступности виртуалки
-  hosts: test_debian    # тот же хост, что прописан в inventory/hosts.yml
+---
+- name: Ping hosts (no vars needed)
+  hosts: "{{ target_hosts | default('managed_hosts') }}"
   gather_facts: false
+
   tasks:
-    - name: Пингуем хост модулем ping
+    - name: Ping
       ansible.builtin.ping:
+      tags: [ping, connectivity]

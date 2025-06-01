@@ -1,37 +1,26 @@
 ---
-- name: Manage user accounts and set a password
-  hosts: test_debian
+- name: Manage existing user (manual)
+  hosts: "{{ target_hosts | default('managed_hosts') }}"
   become: true
 
-  vars:
-    example_user: maks
-    example_uid: 1050
-    example_gid: 1050
-    example_home: "/home/{{ example_user }}"
-    example_password_plain: "qweasdZXC123"
-    example_password_hash: "{{ example_password_plain | password_hash('sha512') }}"
+  pre_tasks:
+    - ansible.builtin.assert:
+        that:
+          - example_user   is defined
+          - example_uid    is defined
+          - example_home   is defined
+          - example_groups is defined
+      tags: always
 
   tasks:
-    - name: Ensure primary group '{{ example_user }}' exists with GID {{ example_gid }}
-      ansible.builtin.group:
-        name: "{{ example_user }}"
-        gid: "{{ example_gid }}"
-        state: present
-
-    - name: Ensure group 'wheel' exists
-      ansible.builtin.group:
-        name: developers 
-        state: present
-
-    - name: Add user '{{ example_user }}' with UID, groups and password
+    - name: Update user
       ansible.builtin.user:
-        name: "{{ example_user }}"
-        uid: "{{ example_uid }}"
-        group: "{{ example_user }}"
-        groups: "developers"
+        name:   "{{ example_user }}"
+        uid:    "{{ example_uid }}"
+        home:   "{{ example_home }}"
+        groups: "{{ example_groups | join(',') }}"
         append: yes
-        comment: "Example User"
-        home: "{{ example_home }}"
         create_home: yes
         shell: /bin/bash
-        password: "{{ example_password_hash }}"
+        state: present
+      tags: [user, manage]

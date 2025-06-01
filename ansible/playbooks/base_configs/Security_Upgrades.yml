@@ -1,19 +1,16 @@
-- name: Check for available security updates
-  hosts: test_debian
+---
+- name: Security upgrades (no vars)
+  hosts: "{{ target_hosts | default('managed_hosts') }}"
   become: true
-  gather_facts: false
 
   tasks:
-    - name: Обновить кеш APT
+    - name: Apt cache update
       ansible.builtin.apt:
         update_cache: yes
+      tags: [apt, cache]
 
-    - name: Собрать список пакетов с пометкой [security] (симуляция обновления)
-      ansible.builtin.shell: |
-        apt-get -s upgrade | grep "^Inst" | grep -i security || echo "No security updates available"
-      register: sec_updates
-      changed_when: false
-
-    - name: Показать, какие security-патчи доступны
-      ansible.builtin.debug:
-        msg: "{{ sec_updates.stdout_lines }}"
+    - name: Apply security updates
+      ansible.builtin.apt:
+        upgrade: dist
+        only_upgrade: yes
+      tags: [apt, security]
