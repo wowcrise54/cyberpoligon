@@ -1,0 +1,32 @@
+---
+- name: Verify create_user_with_directory
+  hosts: "{{ target_hosts | default('managed_hosts') }}"
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Passwd entry
+      ansible.builtin.getent:
+        database: passwd
+        key: "{{ user_name }}"
+      register: u
+      tags: always
+
+    - name: Assert UID & home
+      ansible.builtin.assert:
+        vars:
+          p: "{{ u.ansible_facts.getent_passwd[user_name][0] }}"
+        that:
+          - p.uid  | int == user_uid  | int
+          - p.dir == user_home
+      tags: always
+
+    - name: Assert home directory exists
+      ansible.builtin.stat:
+        path: "{{ user_home }}"
+      register: st
+      tags: always
+
+    - ansible.builtin.assert:
+        that: st.stat.exists and st.stat.isdir
+      tags: always

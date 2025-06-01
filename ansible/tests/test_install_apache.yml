@@ -1,0 +1,24 @@
+---
+- name: Verify install_apache
+  hosts: "{{ target_hosts | default('managed_hosts') }}"
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Package facts
+      ansible.builtin.package_facts:
+      tags: always
+
+    - name: Assert package present
+      ansible.builtin.assert:
+        that: "'{{ package_name }}' in ansible_facts.packages"
+      tags: always
+
+    - name: Service facts
+      ansible.builtin.service_facts:
+      tags: always
+
+    - ansible.builtin.assert:
+        that:
+          - ansible_facts.services['{{ package_name }}.service'].state == 'running'
+      tags: always

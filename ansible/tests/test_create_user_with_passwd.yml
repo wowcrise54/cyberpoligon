@@ -1,0 +1,31 @@
+---
+- name: Verify create_user_with_passwd
+  hosts: "{{ target_hosts | default('managed_hosts') }}"
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: /etc/passwd
+      ansible.builtin.getent:
+        database: passwd
+        key: "{{ example_user }}"
+      register: pw
+      tags: always
+
+    - name: /etc/shadow
+      ansible.builtin.getent:
+        database: shadow
+        key: "{{ example_user }}"
+      register: sh
+      tags: always
+
+    - name: Assert account data
+      ansible.builtin.assert:
+        vars:
+          p: "{{ pw.ansible_facts.getent_passwd[example_user][0] }}"
+          s: "{{ sh.ansible_facts.getent_shadow[example_user][0] }}"
+        that:
+          - p.uid | int == example_uid | int
+          - p.dir == example_home
+          - s.password == example_password_hash
+      tags: always

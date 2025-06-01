@@ -1,0 +1,13 @@
+---
+- name: Verify ping
+  hosts: "{{ target_hosts | default('managed_hosts') }}"
+  gather_facts: false
+
+  tasks:
+    - ping:
+      register: pong
+      tags: always
+
+    - ansible.builtin.assert:
+        that: pong.ping == "pong"
+      tags: always

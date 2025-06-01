@@ -1,0 +1,17 @@
+---
+- name: Verify UFW
+  hosts: "{{ target_hosts | default('managed_hosts') }}"
+  become: true
+  gather_facts: false
+
+  tasks:
+    - command: ufw status verbose
+      register: ufw
+      changed_when: false
+      tags: always
+
+    - ansible.builtin.assert:
+        that:
+          - "'Status: active' in ufw.stdout"
+          - ufw_allow_services | map('lower') | map('regex_search', ufw.stdout | lower) | map('bool') | min
+      tags: always
