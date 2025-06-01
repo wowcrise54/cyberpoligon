@@ -2,7 +2,8 @@
 - name: Add user w/ hashed password (manual)
   hosts: test_debian
   become: true
-
+  tags: always
+  
   pre_tasks:
     - ansible.builtin.assert:
         that:
@@ -10,7 +11,6 @@
           - example_uid           is defined
           - example_home          is defined
           - example_password_hash is defined
-      tags: always
 
   tasks:
     - name: Create user

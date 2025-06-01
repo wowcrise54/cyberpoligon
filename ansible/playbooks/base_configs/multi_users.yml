@@ -2,6 +2,7 @@
 - name: Create many users (manual)
   hosts: test_debian
   become: true
+  tags: always
 
   pre_tasks:
     - name: Guard: users list required

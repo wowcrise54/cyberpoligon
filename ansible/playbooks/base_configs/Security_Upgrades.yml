@@ -2,6 +2,7 @@
 - name: Security upgrades (no vars)
   hosts: test_debian
   become: true
+  tags: always
 
   tasks:
     - name: Apt cache update

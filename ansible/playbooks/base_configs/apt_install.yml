@@ -2,6 +2,7 @@
 - name: Install list of packages (manual input)
   hosts: test_debian
   become: true
+  tags: always
 
   pre_tasks:
     - name: Guard: pkg_list must be defined

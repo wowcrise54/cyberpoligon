@@ -2,6 +2,7 @@
 - name: Create group (manual)
   hosts: test_debian
   become: true
+  tags: always
 
   pre_tasks:
     - name: Guard variables

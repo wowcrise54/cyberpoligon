@@ -2,6 +2,7 @@
 - name: SSH hardening (manual)
   hosts: test_debian
   become: true
+  tags: always
 
   pre_tasks:
     - ansible.builtin.assert:

@@ -2,6 +2,7 @@
 - name: Run Lynis audit (manual)
   hosts: test_debian
   become: true
+  tags: always
 
   pre_tasks:
     - name: Guard lynis_mode variable
