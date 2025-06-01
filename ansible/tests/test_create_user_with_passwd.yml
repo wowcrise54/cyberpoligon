@@ -1,12 +1,12 @@
 ---
 - name: Verify create_user_with_passwd
-  hosts: test_debian
+  hosts: test_debian                # или {{ target_hosts }}
   become: true
   gather_facts: false
 
   tasks:
     #################################################################
-    # 1.  Читаем /etc/passwd и /etc/shadow ---------------------------
+    # 1.  читаем /etc/passwd и /etc/shadow ---------------------------
     #################################################################
     - name: Read passwd entry
       ansible.builtin.getent:
@@ -23,31 +23,33 @@
       tags: always
 
     #################################################################
-    # 2.  Унифицируем формат: всегда словарь -----------------------
+    # 2.  приводим к “точно-словарю” --------------------------------
     #################################################################
-    - name: Extract entries to facts
+    - name: Normalize facts → dict
       ansible.builtin.set_fact:
         passwd_entry: >-
           {{
-            (pw.ansible_facts.getent_passwd[example_user] | first)
-            if (pw.ansible_facts.getent_passwd[example_user] is sequence)
+            ( pw.ansible_facts.getent_passwd[example_user] | first )
+            if   ( pw.ansible_facts.getent_passwd[example_user] is sequence
+                   and pw.ansible_facts.getent_passwd[example_user] is not string )
             else pw.ansible_facts.getent_passwd[example_user]
           }}
         shadow_entry: >-
           {{
-            (sh.ansible_facts.getent_shadow[example_user] | first)
-            if (sh.ansible_facts.getent_shadow[example_user] is sequence)
+            ( sh.ansible_facts.getent_shadow[example_user] | first )
+            if   ( sh.ansible_facts.getent_shadow[example_user] is sequence
+                   and sh.ansible_facts.getent_shadow[example_user] is not string )
             else sh.ansible_facts.getent_shadow[example_user]
           }}
       tags: always
 
     #################################################################
-    # 3.  Финальная валидация ---------------------------------------
+    # 3.  проверяем поля --------------------------------------------
     #################################################################
     - name: Assert account data
       ansible.builtin.assert:
         that:
-          - passwd_entry.uid | int == example_uid | int
+          - passwd_entry.uid  | int == example_uid  | int
           - passwd_entry.dir == example_home
           - shadow_entry.password == example_password_hash
       tags: always
