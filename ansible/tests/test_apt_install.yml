@@ -1,52 +1,29 @@
 ---
 - name: Verify apt_install playbook
   hosts: test_debian
-  become: true
+  become: true            # нужны root-права, чтобы читать dpkg
+  gather_facts: false     # стандартные факты нам не нужны
 
   tasks:
-    # 0️⃣ Приводим переменную pkg_list к списку:
-    #    – если пришла строка «curl,htop», превращаем в ["curl", "htop"],
-    #    – если уже список — оставляем как есть.
-    - name: Normalize pkg_list to list
-      ansible.builtin.set_fact:
-        pkg_effective: >-
-          {{ (pkg_list.split(',') | map('trim') | list) if (pkg_list is string) else (pkg_list | list) }}
-      tags: always
-
+    # 1. Снимаем факты о пакетах
     - name: Collect package facts
       ansible.builtin.package_facts:
       tags: always
 
+    # 2. Приводим pkg_list к списку:
+    #    • "curl,htop"  → ["curl","htop"]
+    #    • ["curl","htop"] остаётся списком
+    - name: Normalize pkg_list to list
+      ansible.builtin.set_fact:
+        pkg_effective: >-
+          {{ (pkg_list.split(',') | map('trim') | list)
+             if (pkg_list is string)
+             else (pkg_list | list) }}
+      tags: always
+
+    # 3. Проверяем наличие каждого пакета
     - name: Assert every requested package is installed
       ansible.builtin.assert:
         that: "'{{ item }}' in ansible_facts.packages"
       loop: "{{ pkg_effective }}"
       tags: always
----
-- name: Verify apt_install playbook
-  hosts: test_debian
-  become: true
-
-  tasks:
-    - name: Collect package facts
-      ansible.builtin.package_facts:
-      tags: always
-
-    - name: Assert every requested package is installed
-      ansible.builtin.assert:
-        that: "'{{ item }}' in ansible_facts.packages"
-      loop: "{{ pkg_list | flatten }}"
-      tags: always
----
-- name: Verify apt_install playbook
-  hosts: test_debian
-  become: true
-
-  tasks:
-    - name: Collect package facts
-      ansible.builtin.package_facts:
-
-    - name: Assert every requested package is installed
-      ansible.builtin.assert:
-        that: "'{{ item }}' in ansible_facts.packages"
-      loop: "{{ pkg_list | flatten }}"
