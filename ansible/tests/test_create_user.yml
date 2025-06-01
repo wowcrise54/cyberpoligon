@@ -1,47 +1,50 @@
 ---
 - name: Verify create_user_with_passwd playbook
-  hosts: test_debian          # тот же хост, что в исходном плейбуке
+  hosts: test_debian           # тот же хост, где создавали пользователя
   become: true
-  gather_facts: false         # системные факты не нужны
+  gather_facts: false          # системные факты не нужны
 
   vars:
-    # 👉  все четыре переменные приходят из Survey или `-e`
-    #     example_user, example_uid, example_home, example_password_hash
-    #     здесь ничего задавать не надо
-    verify_password_hash: true    # можно выключить, если shadow закрыт
+    # Все переменные приходят из Survey / -e
+    #   example_user, example_uid, example_home, example_password_hash   (опционально)
+    verify_password_hash: "{{ example_password_hash is defined }}"   # проверяем только если хэш задан
 
   tasks:
-    # 1. Читаем запись в /etc/passwd
+    ####################################################################
+    # 1. /etc/passwd ----------------------------------------------------
+    ####################################################################
     - name: Read passwd entry for {{ example_user }}
       ansible.builtin.getent:
         database: passwd
         key: "{{ example_user }}"
-      register: user_entry
+      register: user_passwd
       tags: always
 
-    # 2. Базовые проверки
-    - name: Assert user exists and basic properties match
+    - name: Assert user exists and properties match
       ansible.builtin.assert:
         that:
-          - user_entry.entries | length > 0
-          - (user_entry.entries[0].uid | int) == (example_uid | int)
-          - user_entry.entries[0].dir == example_home
+          - user_passwd.ansible_facts.getent_passwd is defined
+          - user_passwd.ansible_facts.getent_passwd[example_user] is defined
+          - (user_passwd.ansible_facts.getent_passwd[example_user].uid | int) == (example_uid | int)
+          - user_passwd.ansible_facts.getent_passwd[example_user].dir == example_home
       tags: always
 
-    # 3. Читаем /etc/shadow (может требовать pam-access или --ask-become-pass)
+    ####################################################################
+    # 2. /etc/shadow ----------------------------------------------------
+    ####################################################################
     - name: Read shadow entry for {{ example_user }}
       ansible.builtin.getent:
         database: shadow
         key: "{{ example_user }}"
-      register: shadow_entry
-      when: verify_password_hash | bool
+      register: user_shadow
+      when: verify_password_hash
       tags: always
 
-    # 4. Проверяем, что хэш совпадает
-    - name: Assert password hash matches what was requested
+    - name: Assert password hash matches the requested one
       ansible.builtin.assert:
         that:
-          - shadow_entry.entries | length > 0
-          - shadow_entry.entries[0].password == example_password_hash
-      when: verify_password_hash | bool
+          - user_shadow.ansible_facts.getent_shadow is defined
+          - user_shadow.ansible_facts.getent_shadow[example_user] is defined
+          - user_shadow.ansible_facts.getent_shadow[example_user].password == example_password_hash
+      when: verify_password_hash
       tags: always
