@@ -1,6 +1,6 @@
 ---
 - name: Install list of packages (manual input)
-  hosts: "{{ target_hosts | default('managed_hosts') }}"
+  hosts: test_debian
   become: true
 
   pre_tasks:

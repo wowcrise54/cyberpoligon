@@ -1,6 +1,6 @@
 ---
 - name: Ping hosts (no vars needed)
-  hosts: "{{ target_hosts | default('managed_hosts') }}"
+  hosts: test_debian
   gather_facts: false
 
   tasks:

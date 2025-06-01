@@ -1,6 +1,6 @@
 ---
 - name: Security upgrades (no vars)
-  hosts: "{{ target_hosts | default('managed_hosts') }}"
+  hosts: test_debian
   become: true
 
   tasks:

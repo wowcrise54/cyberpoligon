@@ -1,6 +1,6 @@
 ---
 - name: Delete user (manual)
-  hosts: "{{ target_hosts | default('managed_hosts') }}"
+  hosts: test_debian
   become: true
 
   pre_tasks:
