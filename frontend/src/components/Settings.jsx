@@ -58,7 +58,7 @@ export default function Settings() {
 
     return (
         <div className="create">
-            <Text variant="display-1">Добавить скрипт</Text>
+            <Text variant="display-1">Форма добавления скрипта</Text>
 
             <div className="option">
                 <Text variant="body-2">Название</Text>
@@ -66,8 +66,7 @@ export default function Settings() {
                     value={name}
                     onChange={e => setName(e.target.value)}
                     placeholder="Название скрипта"
-                    size="m"
-                    style={{ width: 300 }}
+                    size="l"
                 />
             </div>
 
@@ -77,8 +76,7 @@ export default function Settings() {
                     value={description}
                     onChange={e => setDescription(e.target.value)}
                     placeholder="Описание скрипта"
-                    size="m"
-                    style={{ width: 300 }}
+                    size="l"
                 />
             </div>
 
@@ -88,8 +86,7 @@ export default function Settings() {
                     value={path}
                     onChange={e => setPath(e.target.value)}
                     placeholder="Путь (playbook) в репозитории"
-                    size="m"
-                    style={{ width: 300 }}
+                    size="l"
                 />
             </div>
 
@@ -99,8 +96,7 @@ export default function Settings() {
                     value={tag}
                     onChange={e => setTag(e.target.value)}
                     placeholder="К какой ОС относится скрипт"
-                    size="m"
-                    style={{ width: 300 }}
+                    size="l"
                 />
             </div>
 
@@ -110,8 +106,7 @@ export default function Settings() {
                     value={app}
                     onChange={e => setApp(e.target.value)}
                     placeholder="Приложение для запуска скрипта"
-                    size="m"
-                    style={{ width: 300 }}
+                    size="l"
                 />
             </div>
 

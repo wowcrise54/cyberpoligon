@@ -68,12 +68,12 @@ const Create = () => {
 
     return (
         <div className="create">
-            <Text variant="display-1">Создание ВМ</Text>
+            <Text variant="display-1">Форма создания виртуальной машины</Text>
 
             <div className="option">
                 <Text variant="body-2">Название</Text>
                 <TextInput
-                    style={{ width: "300px" }}
+                    size="l"
                     placeholder="Название виртуальной машины"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -83,9 +83,8 @@ const Create = () => {
             <div className="option">
                 <Text variant="body-2">Операционная система</Text>
                 <Select
-                    size="m"
+                    size="l"
                     placeholder="Выберите ОС"
-                    width={300}
                     value={osType} // Указываем текущее значение
                     onUpdate={(value) => setOsType(value)} // Устанавливаем значение в osType
                 >
@@ -101,7 +100,7 @@ const Create = () => {
             <div className="option">
                 <Text variant="body-2">Количество ядер процессора</Text>
                 <TextInput
-                    style={{ width: "300px" }}
+                    size="l"
                     type="number"
                     placeholder="Введите количество ядер"
                     value={cpuCores}
@@ -112,7 +111,7 @@ const Create = () => {
             <div className="option">
                 <Text variant="body-2">Оперативная память (ГБ)</Text>
                 <TextInput
-                    style={{ width: "300px" }}
+                    size="l"
                     type="number"
                     placeholder="Введите объём памяти"
                     value={memory}
@@ -123,7 +122,7 @@ const Create = () => {
             <div className="option">
                 <Text variant="body-2">Размер жёсткого диска (ГБ)</Text>
                 <TextInput
-                    style={{ width: "300px" }}
+                    size="l"
                     type="number"
                     placeholder="Введите размер диска (необязательно)"
                     value={storage}
