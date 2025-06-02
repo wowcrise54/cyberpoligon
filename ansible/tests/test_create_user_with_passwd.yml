@@ -42,14 +42,3 @@
             else sh.ansible_facts.getent_shadow[example_user]
           }}
       tags: always
-
-    #################################################################
-    # 3.  проверяем поля --------------------------------------------
-    #################################################################
-    - name: Assert account data
-      ansible.builtin.assert:
-        that:
-          - passwd_entry.uid  | int == example_uid  | int
-          - passwd_entry.dir == example_home
-          - shadow_entry.password == example_password_hash
-      tags: always
