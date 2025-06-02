@@ -1,9 +1,10 @@
 - name: Install some pkg
   hosts: test_debian
   become: true
+  tags:
+    - deb
+  
   tasks:
     - name: Install pkg
       ansible.builtin.apt:
-        pkg:
-          - htop
-          - nginx
+        pkg: "{{ pkg_list }}"

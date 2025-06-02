@@ -29,6 +29,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+STATUS_MAP = {
+    "waiting": "pending",   # ← теперь фронт видит familiar "pending"
+    "error":   "failure",   # (у Semaphore нет 'failure', он шлёт 'error')
+}
+
 # прокидываем все роуты авторизации под /api
 app.include_router(users_router, prefix="/api")
 
@@ -43,6 +48,7 @@ class VMConfig(BaseModel):
 
 class PlaybookRequest(BaseModel):
     template_name: str
+    variables: dict[str, str] = {}    # здесь на выходе то, что задаст юзер
 
 
 @app.post("/create_vm/")
@@ -76,7 +82,7 @@ async def get_vms_raw():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/run_playbook")
+@app.post("/api/run_playbook")
 async def create_playbook_task(req: PlaybookRequest):
     try:
         template_id = find_template_id_by_name(req.template_name)
@@ -91,6 +97,7 @@ async def create_playbook_task(req: PlaybookRequest):
             "environment_id": extract_id(environment),
             "inventory_id": extract_id(inventory),
             "repository_ids": [r["id"] for r in repos if isinstance(r, dict)],
+            "environment":   json.dumps(req.variables or {}),
         }
 
         task = create_task(payload)
@@ -101,13 +108,14 @@ async def create_playbook_task(req: PlaybookRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/run_playbook/status")
+@app.get("/api/run_playbook/status")
 async def playbook_status(task_id: int):
-    try:
-        status_info = get_task_status(task_id)
-        output = None
-        if status_info.get("status") in ("success", "failure"):
-            output = get_task_output(task_id)
-        return {"status": status_info["status"], "output": output}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    info = get_task_status(task_id)
+    raw = info["status"]
+    status = STATUS_MAP.get(raw, raw)          # нормализация
+
+    output = None
+    if status in ("success", "failure"):
+        output = get_task_output(task_id)
+
+    return {"status": status, "output": output}
