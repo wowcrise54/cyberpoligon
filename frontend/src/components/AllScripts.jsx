@@ -1,8 +1,9 @@
 // AllScripts.jsx
 import React, {useEffect, useState} from "react";
-import { Icon, Table, withTableActions, Spin, Text, Loader } from "@gravity-ui/uikit";
+import { Icon, Table, withTableActions, Spin, Text, Loader, Card, Button } from "@gravity-ui/uikit";
+import { NavLink } from "react-router-dom";
 import { toaster } from "@gravity-ui/uikit/toaster-singleton";
-import { TrashBin, PencilToSquare } from "@gravity-ui/icons";
+import { TrashBin, PencilToSquare, CirclePlay } from "@gravity-ui/icons";
 import ScriptInfo from "./ScriptInfo";
 import EditScriptModal from "./EditScriptModal";
 import './User.css';
@@ -93,30 +94,51 @@ export default function AllScripts() {
   }
 
   return (
-    <div className="create">
-      <Text variant="display-1">Скрипты</Text>
-      <div className="mgt">
-        <MyTable
-          data={data}
-          columns={[
-            { id: "id",          title: "#" },
-            { id: "Название",    title: "Название" },
-            { id: "Путь",        title: "Путь" },
-            { id: "Тег",         title: "Тег" },
-            { id: "Приложение",  title: "Приложение" },
-          ]}
-          selectable
-          selectedIds={selectedIds}
-          onSelectionChange={setSelectedIds}
-          getRowActions={getRowActions}
-          rowActionsSize="l"
-          onRowClick={item => {
-            setViewScript(item);
-            setViewOpen(true);
-          }}
-        />
 
-        {/* Модалка просмотра */}
+    <Card view="outlined" type="container">
+      <div className="vm-card">
+          <div className="vm-title">
+          <div className="vm-name">
+
+              <Text variant="header-1">Скрипты</Text>
+              <Text variant="body-2">Все доступные скрипты</Text>
+          </div>
+
+            <div className="vm-buttons">
+              <NavLink to="/User/settings">
+                <Button view="action" size="m">
+                  <Icon data={CirclePlay} size={16} />
+                  Добавить новый скрипт
+                </Button>
+              </NavLink>  
+
+            </div>
+
+          </div>
+
+          <div className="vm-params">
+
+            <MyTable
+                data={data}
+                columns={[
+                  { id: "id",          title: "#" },
+                  { id: "Название",    title: "Название" },
+                  { id: "Путь",        title: "Путь" },
+                  { id: "Тег",         title: "Тег" },
+                  { id: "Приложение",  title: "Приложение" },
+                ]}
+                selectable
+                selectedIds={selectedIds}
+                onSelectionChange={setSelectedIds}
+                getRowActions={getRowActions}
+                rowActionsSize="l"
+                onRowClick={item => {
+                  setViewScript(item);
+                  setViewOpen(true);
+                }}
+            />
+          </div>
+
         <ScriptInfo
           open={viewOpen}
           onClose={() => setViewOpen(false)}
@@ -137,7 +159,8 @@ export default function AllScripts() {
             setEditOpen(false);
           }}
         />
+
       </div>
-    </div>
+    </Card>
   );
 }

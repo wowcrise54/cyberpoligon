@@ -5,51 +5,22 @@ import {
   TextInput,
   Button,
   User,
-  Table,
-  withTableActions,
   Loader,
-  Icon
 } from '@gravity-ui/uikit';
-import {ArrowRight} from '@gravity-ui/icons';
 import './User.css';
 
-const MyTable = withTableActions(Table);
-
-const columns = [
-  { id: "last_name",  name: "Фамилия", align: "left" },
-  { id: "first_name", name: "Имя",     align: "left" },
-  { id: "email",      name: "Почта",   align: "left" },
-  { id: "role",       name: "Роль",    align: "left" },
-];
-
 export default function ProfilePage() {
-  const [me, setMe]       = useState(null);
-  const [users, setUsers] = useState([]);
-  const [roles, setRoles] = useState([]);
+  const [me, setMe] = useState(null);
 
   useEffect(() => {
     document.title = "Мой профиль";
     const token   = sessionStorage.getItem("token");
     const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
 
-    // теперь: чистый запрос в БД
     fetch("/api/me", { headers })
       .then(r => r.ok ? r.json() : Promise.reject(r.statusText))
       .then(profile => {
         setMe(profile);
-
-        // только если admin — подгружаем таблицу
-        if (profile.role === "admin") {
-          fetch("/api/users", { headers })
-            .then(r => r.ok ? r.json() : Promise.reject(r.statusText))
-            .then(data => setUsers(data))
-            .catch(console.error);
-
-          fetch("/api/roles", { headers })
-            .then(r => r.ok ? r.json() : Promise.reject(r.statusText))
-            .then(data => setRoles(data))
-            .catch(console.error);
-        }
       })
       .catch(err => console.error("Не удалось загрузить профиль:", err));
   }, []);
@@ -61,32 +32,6 @@ export default function ProfilePage() {
       </div>
     );
   }
-
-  const changeRole = (userId, newRole) => {
-    const token   = sessionStorage.getItem("token");
-    const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-
-    fetch(`/api/users/${userId}/role`, {
-      method: "PATCH",
-      headers,
-      body: JSON.stringify({ role: newRole }),
-    })
-      .then(r => {
-        if (!r.ok) throw new Error(r.statusText);
-        setUsers(us => us.map(u => u.id === userId ? { ...u, role: newRole } : u));
-      })
-      .catch(err => {
-        console.error("Ошибка при смене роли:", err);
-        alert(`Не удалось изменить роль: ${err.message}`);
-      });
-  };
-
-const getRowActions = (row) =>
-  roles.map((r) => ({
-    text: r.name,
-    icon: <Icon data={ArrowRight} size={16} />,
-    handler: () => changeRole(row.id, r.name),
-  }));
 
   return (
     <div className="profile1">
@@ -146,23 +91,6 @@ const getRowActions = (row) =>
             <Text variant="body-2">Изменить</Text>
           </Button>
         </div>
-
-        {/* ——— Таблица только для админов */}
-        {me.role === "admin" && (
-          <div className="temple">
-            <Text variant="header-1">Все пользователи</Text>
-            <div className="option-profile">
-              <MyTable
-              columns={columns}
-              data={users}
-              noDataMessage="Пользователи не найдены"
-              getRowActions={getRowActions}
-              rowActionsSize="l"
-              />
-            </div>
-            
-          </div>
-        )}
 
       </div>
     </div>

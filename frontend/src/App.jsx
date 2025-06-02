@@ -14,6 +14,7 @@ import Home from "./components/Home";
 import Create from "./components/Create";
 import Settings from "./components/Settings";
 import AllScripts from "./components/AllScripts";
+import Users from "./components/Users";
 import VmSettings from "./components/VMSettings";
 import ProfilePage from './components/ProfilePage';
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -34,6 +35,7 @@ const App = ({ theme, toggleTheme }) => (
           <Route index element={<Home />} />
           <Route path="create" element={<Create />} />
           <Route path="scripts" element={<AllScripts />} />
+          <Route path="users" element={<Users />} />
           <Route path="settings" element={<Settings />} />
           <Route path="vm-settings/:vmId" element={<VmSettings />} />
           <Route path="me" element={<ProfilePage />} />

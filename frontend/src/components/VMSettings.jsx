@@ -84,7 +84,7 @@ const VMSettings = () => {
   }
 
   return (
-    <div className="create">
+    <div>
       <Card view="outlined" type="container">
         <div className="vm-card">
           <div className="vm-title">

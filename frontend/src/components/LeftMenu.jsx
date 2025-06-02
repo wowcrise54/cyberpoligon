@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { Button, Icon, Text, Tooltip } from '@gravity-ui/uikit';
-import { HomeIcon, AddIcon, SettingsIcon, ExitIcon, ScriptsIcon } from "./Icons";
+import {House, FileCode, ArrowRightFromSquare, Persons, Plus} from '@gravity-ui/icons';
 import '../styles.css';
 import './LeftMenu.css';
 
@@ -48,7 +48,7 @@ const LeftMenu = ({ isActive, isCollapsed, sidebarRef }) => {
               className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}
             >
               <Button view="flat" width="max" className="button" size="l">
-                <Icon data={HomeIcon} size={20} />
+                <Icon data={House} size={20} />
                 {!isCollapsed && <Text variant="body-2">Главная</Text>}
               </Button>
             </NavLink>
@@ -61,7 +61,7 @@ const LeftMenu = ({ isActive, isCollapsed, sidebarRef }) => {
               className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}
             >
               <Button view="flat" width="max" className="button" size="l">
-                <Icon data={AddIcon} size={20} />
+                <Icon data={Plus} size={20} />
                 {!isCollapsed && <Text variant="body-2">Создать ВМ</Text>}
               </Button>
             </NavLink>
@@ -74,21 +74,34 @@ const LeftMenu = ({ isActive, isCollapsed, sidebarRef }) => {
               className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}
             >
               <Button view="flat" width="max" className="button" size="l">
-                <Icon data={ScriptsIcon} size={20} />
+                <Icon data={FileCode} size={20} />
                 {!isCollapsed && <Text variant="body-2">Скрипты</Text>}
               </Button>
             </NavLink>
           </Tooltip>
         </li>
         <li className="list-item">
-          <Tooltip content="Настройки" placement="right" disabled={!isCollapsed} openDelay={300}>
+          <Tooltip content="Добавить скрипт" placement="right" disabled={!isCollapsed} openDelay={300}>
             <NavLink
               to="/User/settings"
               className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}
             >
               <Button view="flat" width="max" className="button" size="l">
-                <Icon data={SettingsIcon} size={20} />
-                {!isCollapsed && <Text variant="body-2">Настройки</Text>}
+                <Icon data={Plus} size={20} />
+                {!isCollapsed && <Text variant="body-2">Добавить скрипт</Text>}
+              </Button>
+            </NavLink>
+          </Tooltip>
+        </li>
+        <li className="list-item">
+          <Tooltip content="Пользователи" placement="right" disabled={!isCollapsed} openDelay={300}>
+            <NavLink
+              to="/User/users"
+              className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}
+            >
+              <Button view="flat" width="max" className="button" size="l">
+                <Icon data={Persons} size={20} />
+                {!isCollapsed && <Text variant="body-2">Пользователи</Text>}
               </Button>
             </NavLink>
           </Tooltip>
@@ -101,7 +114,7 @@ const LeftMenu = ({ isActive, isCollapsed, sidebarRef }) => {
               onClick={logout}
             >
               <Button view="flat" width="max" className="button" size="l">
-                <Icon data={ExitIcon} size={20} />
+                <Icon data={ArrowRightFromSquare} size={20} />
                 {!isCollapsed && <Text variant="body-2">Выход</Text>}
               </Button>
             </NavLink>
