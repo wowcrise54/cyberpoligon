@@ -40,6 +40,8 @@ chmod a+rw /tmp/.env || echo "⚠ Не смогли сделать /tmp/.env д�
 /usr/local/bin/server-wrapper &   # фон, PID 1 остаётся скрипт
 UI_PID=$!
 
+pip3 install passlib
+
 log "Жду готовности UI…"
 until curl -sS --fail -o /dev/null "$API_BASE/auth/login"; do sleep 1; done
 log "UI готов."
