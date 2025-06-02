@@ -12,7 +12,7 @@
           - example_home          is defined
           - example_password_hash is defined
 
-     name: Generate password hash
+    - name: Generate password hash
       ansible.builtin.set_fact:
         example_password_hash: "{{ example_password | password_hash('sha512') }}"
       no_log: true
