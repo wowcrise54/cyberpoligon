@@ -15,7 +15,6 @@
     - name: Generate password hash
       ansible.builtin.set_fact:
         example_password_hash: "{{ example_password | password_hash('sha512') }}"
-      no_log: true
 
   tasks:
     - name: Create user
