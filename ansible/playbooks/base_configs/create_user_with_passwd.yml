@@ -10,7 +10,7 @@
           - example_user          is defined
           - example_uid           is defined
           - example_home          is defined
-          - example_password_hash is defined
+          - example_password is defined
 
     - name: Generate password hash
       ansible.builtin.set_fact:
