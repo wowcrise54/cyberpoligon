@@ -71,7 +71,7 @@ const Create = () => {
             <Text variant="display-1">Форма создания виртуальной машины</Text>
 
             <div className="option">
-                <Text variant="body-2">Название</Text>
+                <Text variant="body-2">Название<Text variant="body-2" color="danger">*</Text></Text>
                 <TextInput
                     size="l"
                     placeholder="Название виртуальной машины"
@@ -81,7 +81,7 @@ const Create = () => {
             </div>
 
             <div className="option">
-                <Text variant="body-2">Операционная система</Text>
+                <Text variant="body-2">Операционная система<Text variant="body-2" color="danger">*</Text></Text>
                 <Select
                     size="l"
                     placeholder="Выберите ОС"
@@ -98,7 +98,7 @@ const Create = () => {
             </div>
 
             <div className="option">
-                <Text variant="body-2">Количество ядер процессора</Text>
+                <Text variant="body-2">Количество ядер процессора<Text variant="body-2" color="danger">*</Text></Text>
                 <TextInput
                     size="l"
                     type="number"
@@ -109,7 +109,7 @@ const Create = () => {
             </div>
 
             <div className="option">
-                <Text variant="body-2">Оперативная память (ГБ)</Text>
+                <Text variant="body-2">Оперативная память (ГБ)<Text variant="body-2" color="danger">*</Text></Text>
                 <TextInput
                     size="l"
                     type="number"
@@ -120,7 +120,7 @@ const Create = () => {
             </div>
 
             <div className="option">
-                <Text variant="body-2">Размер жёсткого диска (ГБ)</Text>
+                <Text variant="body-2">Размер жёсткого диска (ГБ)<Text variant="body-2" color="danger">*</Text></Text>
                 <TextInput
                     size="l"
                     type="number"

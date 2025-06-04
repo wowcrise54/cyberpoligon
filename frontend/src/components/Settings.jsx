@@ -61,7 +61,7 @@ export default function Settings() {
             <Text variant="display-1">Форма добавления скрипта</Text>
 
             <div className="option">
-                <Text variant="body-2">Название</Text>
+                <Text variant="body-2">Название<Text variant="body-2" color="danger">*</Text></Text>
                 <TextInput
                     value={name}
                     onChange={e => setName(e.target.value)}
@@ -71,7 +71,7 @@ export default function Settings() {
             </div>
 
             <div className="option">
-                <Text variant="body-2">Описание</Text>
+                <Text variant="body-2">Описание<Text variant="body-2" color="danger">*</Text></Text>
                 <TextArea
                     value={description}
                     onChange={e => setDescription(e.target.value)}
@@ -81,7 +81,7 @@ export default function Settings() {
             </div>
 
             <div className="option">
-                <Text variant="body-2">Путь до скрипта</Text>
+                <Text variant="body-2">Путь до скрипта<Text variant="body-2" color="danger">*</Text></Text>
                 <TextInput
                     value={path}
                     onChange={e => setPath(e.target.value)}
@@ -91,7 +91,7 @@ export default function Settings() {
             </div>
 
             <div className="option">
-                <Text variant="body-2">Тег</Text>
+                <Text variant="body-2">Тег<Text variant="body-2" color="danger">*</Text></Text>
                 <TextInput
                     value={tag}
                     onChange={e => setTag(e.target.value)}
@@ -101,7 +101,7 @@ export default function Settings() {
             </div>
 
             <div className="option">
-                <Text variant="body-2">Приложение</Text>
+                <Text variant="body-2">Приложение<Text variant="body-2" color="danger">*</Text></Text>
                 <TextInput
                     value={app}
                     onChange={e => setApp(e.target.value)}
