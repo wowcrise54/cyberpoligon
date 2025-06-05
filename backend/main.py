@@ -11,14 +11,23 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from semaphore_api.create_task import create_task, find_template_id_by_name, get_task_status, get_task_output, get_inventory, get_environment, get_repositories, extract_id
+from semaphore_api.create_task import (
+    create_task,
+    find_template_id_by_name,
+    get_task_status,
+    get_task_output,
+    get_inventory,
+    get_environment,
+    get_repositories,
+    extract_id,
+)
 from tf_generator import run_terraform
-from zvirt_client import get_vms
-from f import format_vms
+from zvirt_client import get_vms        # <<< Оставляем вызов get_vms
 from database.session import get_session
-from database.users.models  import VirtualMachine 
+from database.users.models import VirtualMachine
 # импортируем роутер для /api/auth
 from database.router import router as users_router
+
 load_dotenv()
 
 app = FastAPI()
@@ -40,6 +49,7 @@ STATUS_MAP = {
 # прокидываем все роуты авторизации под /api
 app.include_router(users_router, prefix="/api")
 
+
 class VMConfig(BaseModel):
     name: str
     cpu_cores: int
@@ -54,6 +64,23 @@ class PlaybookRequest(BaseModel):
     variables: dict[str, str] = {}    # здесь на выходе то, что задаст юзер
 
 
+class VMResponse(BaseModel):
+    """
+    Схема ответа для /vms/.
+    Поле `id` соответствует zvirt_id (UUID в виде строки).
+    """
+    id: str
+    name: str
+    os_type: Optional[str]
+    cpu_cores: int
+    memory_gb: int
+    status: str
+    address: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+
 @app.post("/api/create_vm/")
 async def create_vm(config: VMConfig):
     try:
@@ -63,47 +90,78 @@ async def create_vm(config: VMConfig):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/vms/", response_model=List[dict])
+@app.get("/vms/", response_model=List[VMResponse])
 async def list_vms(session: AsyncSession = Depends(get_session)):
+    """
+    1) Сначала опрашиваем гипервизор через get_vms() и синхронизируем записи в БД.
+    2) После commit-а забираем все строки из таблицы virtual_machine и возвращаем их.
+    """
     try:
+        # 1. Получаем «живой» список ВМ из zVirt (список словарей)
         formatted_vms = get_vms(
             playbook_path="ansible_zvirt/test.yml",
             output_path="json/vms_formatted.json",
         )
 
+        # 2. Апдейтим/создаём записи в таблице virtual_machine
         for vm in formatted_vms:
-            # 1️⃣  Перекладываем zVirt-UUID в отдельную переменную
+            # Перекладываем zVirt-UUID в отдельную переменную
             zvirt_uuid = uuid.UUID(vm["id"])      # str → UUID
-            # 2️⃣  Оригинальный ключ 'id' больше не нужен
+            # Копируем все поля, убираем ключ "id" из словаря
             vm_data = vm.copy()
-            vm_data.pop("id")                     # убираем, чтобы не попасть в INTEGER id
-            vm_data["zvirt_id"] = zvirt_uuid      # кладём в правильный столбец
+            vm_data.pop("id")
+            vm_data["zvirt_id"] = zvirt_uuid
 
-            # поиск теперь по zvirt_id, а не по name
+            # Ищем в базе по zvirt_id
             stmt = select(VirtualMachine).where(VirtualMachine.zvirt_id == zvirt_uuid)
             res  = await session.execute(stmt)
-            row  = res.scalars().first()
+            existing_vm = res.scalars().first()
 
-            if row:                                # UPDATE
-                row.name       = vm_data["name"]
-                row.os_type    = vm_data["os_type"]
-                row.cpu_cores  = vm_data["cpu_cores"]
-                row.memory_gb  = vm_data["memory_gb"]
-                row.status     = vm_data["status"]
-                row.address    = vm_data["address"]
-            else:                                  # INSERT
+            if existing_vm:
+                # UPDATE: просто обновляем все нужные поля
+                existing_vm.name      = vm_data["name"]
+                existing_vm.os_type   = vm_data["os_type"]
+                existing_vm.cpu_cores = vm_data["cpu_cores"]
+                existing_vm.memory_gb = vm_data["memory_gb"]
+                existing_vm.status    = vm_data["status"]
+                existing_vm.address   = vm_data["address"]
+            else:
+                # INSERT: создаём новую запись, если её не было в БД
                 session.add(VirtualMachine(**vm_data))
 
+        # 3. Фиксируем изменения в БД
         await session.commit()
-        return formatted_vms
+
+        # 4. Снова читаем из таблицы и возвращаем результат фронту
+        stmt_all = select(VirtualMachine)
+        res_all  = await session.execute(stmt_all)
+        vms_in_db = res_all.scalars().all()
+
+        # Собираем список словарей в формате VMResponse
+        result_list = []
+        for vm_obj in vms_in_db:
+            result_list.append({
+                "id": str(vm_obj.zvirt_id),
+                "name": vm_obj.name,
+                "os_type": vm_obj.os_type,
+                "cpu_cores": vm_obj.cpu_cores,
+                "memory_gb": vm_obj.memory_gb,
+                "status": vm_obj.status,
+                "address": vm_obj.address,
+            })
+        return result_list
 
     except Exception as exc:
         await session.rollback()
-        raise HTTPException(500, detail=str(exc))
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 @app.get("/vms/raw/")
 async def get_vms_raw():
+    """
+    Возвращает «сырые» данные из JSON-файла ansible-плейбука,
+    если он успел записаться в json/vms_formatted.json
+    """
     try:
         output_path = "json/vms_formatted.json"
         if not os.path.exists(output_path):
@@ -145,7 +203,7 @@ async def create_playbook_task(req: PlaybookRequest):
 async def playbook_status(task_id: int):
     info = get_task_status(task_id)
     raw = info["status"]
-    status = STATUS_MAP.get(raw, raw)          # нормализация
+    status = STATUS_MAP.get(raw, raw)  # нормализация
 
     output = None
     if status in ("success", "failure"):

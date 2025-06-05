@@ -1,60 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { Text, Loader } from '@gravity-ui/uikit';
+import { Text, Loader } from "@gravity-ui/uikit";
 import VMCard from "./VMCard";
-import './User.css';
-
-const fakeData = [
-  {
-    id: 1,
-    name: "Windows Server 2016",
-    os_type: "windows",
-    cpu_cores: 4,
-    memory_gb: 8
-  },
-  {
-    id: 2,
-    name: "Ubuntu 24.04",
-    os_type: "ubuntu",
-    cpu_cores: 2,
-    memory_gb: 4
-  },
-  {
-    id: 3,
-    name: "Debian",
-    os_type: "debian",
-    cpu_cores: 8,
-    memory_gb: 16
-  },
-  {
-    id: 4,
-    name: "Astra Linux",
-    os_type: "Astra",
-    cpu_cores: 6,
-    memory_gb: 6,
-    ssd: 256,
-    isTurnedOn: false,
-  }
-];
+import "./User.css";
 
 const Home = () => {
   const [vms, setVms] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const fetchVMs = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-
-      // Если бекэнд недоступен, используем тестовые данные
-      // const response = await fetch("https://192.168.0.43/api/vms/");
-      // const data = await response.json();
-      // setVms(data);
-      setTimeout(() => { // имитация задержки запроса
-        setVms(fakeData);
-        setLoading(false);
-      }, 1000);
-      
-    } catch (error) {
-      console.error("Ошибка при загрузке данных ВМ:", error);
+      const response = await fetch("http://localhost:8000/vms/"); // Поменяйте URL на ваш
+      if (!response.ok) {
+        throw new Error(`Ошибка ${response.status}: ${response.statusText}`);
+      }
+      const data = await response.json();
+      setVms(data);
+    } catch (err) {
+      console.error("Ошибка при загрузке данных ВМ:", err);
+      setError(err.message);
+    } finally {
       setLoading(false);
     }
   };
@@ -67,22 +34,35 @@ const Home = () => {
   return (
     <div className="home">
       <Text variant="display-1">Виртуальные машины</Text>
-      {loading ? (
+
+      {loading && (
         <div className="loader">
           <Loader size="l" />
         </div>
-      ) : (
-        <div className="card-container">
+      )}
+
+      {!loading && error && (
+        <div className="error">
+          <Text variant="body-1" color="critical">
+            {`Не удалось загрузить ВМ: ${error}`}
+          </Text>
+        </div>
+      )}
+
+      {!loading && !error && (
+        <>
           {vms.length === 0 ? (
             <div className="none">
               <Text variant="display-1">Нет доступных виртуальных машин</Text>
             </div>
           ) : (
-            vms.map((vm) => (
-              <VMCard key={vm.id} vm={vm} />
-            ))
+            <div className="card-container">
+              {vms.map((vm) => (
+                <VMCard key={vm.id} vm={vm} />
+              ))}
+            </div>
           )}
-        </div>
+        </>
       )}
     </div>
   );
