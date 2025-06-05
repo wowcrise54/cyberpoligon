@@ -1,63 +1,93 @@
-- name: Сбор информации о созданных виртуальных машинах в oVirt
+---
+- name: Сбор сведений о ВМ в oVirt (с IP-адресами)
   hosts: localhost
   connection: local
   gather_facts: false
 
   vars:
-    raw_output_path: "/app/json/vms_raw.json"
+    # -------------------- параметры подключения --------------------
+    api_url:  "https://cluster.acid-tech.ru/ovirt-engine/api"
+    api_user: "admin@zvirt@internal"
+    api_pass: "P@ssw0rd"                 # ► лучше хранить в Ansible Vault
+    ca_file:  "/app/pki-resource.cer"
+
+    # -------------------- куда сохранять результаты ----------------
+    raw_output_path:       "/app/json/vms_raw.json"
     formatted_output_path: "/app/json/vms_formatted.json"
 
   tasks:
-    - name: Аутентификация в oVirt
-      ovirt.ovirt.ovirt_auth:
-        url: "https://cluster.acid-tech.ru/ovirt-engine/api"
-        username: "admin@zvirt@internal"
-        password: "P@ssw0rd"
-        ca_file: "/app/pki-resource.cer"
-      register: ovirt_auth
+  # -----------------------------------------------------------------
+  # 1. Логинимся и получаем факт `ovirt_auth` (token + url + user).
+  #    Не регистрируем под тем же именем, чтобы не затереть факт.
+  # -----------------------------------------------------------------
+  - name: Логинимся в oVirt
+    ovirt.ovirt.ovirt_auth:
+      url:      "{{ api_url }}"
+      username: "{{ api_user }}"
+      password: "{{ api_pass }}"
+      ca_file:  "{{ ca_file }}"
 
-    - name: Получение информации о созданных виртуальных машинах
-      ovirt.ovirt.ovirt_vm_info:
-        auth:
-          url: "https://cluster.acid-tech.ru/ovirt-engine/api"
-          username: "admin@zvirt@internal"
-          password: "P@ssw0rd"
-          ca_file: "/app/pki-resource.cer"
-      register: vm_info
+  # -----------------------------------------------------------------
+  # 2. Пытаемся получить ВМ новой опцией follow → reported_devices.
+  #    Если коллекция старая и follow не поддерживается, используем
+  #    fetch_nested + nested_attributes (резерв на rescue-ветке).
+  # -----------------------------------------------------------------
+  - name: Получаем список ВМ (follow → reported_devices)
+    block:
+      - ovirt.ovirt.ovirt_vm_info:
+          auth: "{{ ovirt_auth }}"     # факт, автоматом доступный после auth
+          follow:
+            - reported_devices
+        register: vm_raw
+    rescue:
+      - ovirt.ovirt.ovirt_vm_info:
+          auth: "{{ ovirt_auth }}"
+          fetch_nested: true
+          nested_attributes:
+            - reported_devices
+        register: vm_raw
 
-    - name: Сохранение сырых данных ВМ в JSON
-      copy:
-        content: "{{ vm_info | to_nice_json }}"
-        dest: "{{ raw_output_path }}"
+  # -----------------------------------------------------------------
+  # 3. Сохраняем «сырые» данные.
+  # -----------------------------------------------------------------
+  - name: Сохраняем необработанный JSON
+    copy:
+      content: "{{ vm_raw | to_nice_json }}"
+      dest: "{{ raw_output_path }}"
 
-    - name: Форматирование данных виртуальных машин
-      # Создаём новый список formatted_vms, фильтруя изначальный список и преобразуя его структуру
-      set_fact:
-        formatted_vms: []
+  # -----------------------------------------------------------------
+  # 4. Готовим красивый список.
+  # -----------------------------------------------------------------
+  - name: Инициализируем список форматированных ВМ
+    set_fact: { formatted_vms: [] }
 
-    - name: Формировать список ВМ
-      set_fact:
-        formatted_vms: "{{ formatted_vms + [ {
-            'id': item.id,
-            'name': item.name,
-            'os_type': (item.os.type|default('unknown')),
-            'cpu_cores': (item.cpu.topology.cores|default(0)),
-            'memory_gb': ((item.memory | default(0)) | int // (1024**3)|float|round(2)),
-            'status': (item.status|default('unknown'))
-        } ] }}"
-      loop: "{{ vm_info.ovirt_vms }}"
-      when: item.os.type is not defined or item.os.type != 'znode'
+  - name: Формируем структуру (IP через фильтр ovirtvmips)
+    set_fact:
+      formatted_vms: >-
+        {{ formatted_vms + [ {
+            'id':         item.id,
+            'name':       item.name,
+            'os_type':    item.os.type | default('unknown'),
+            'cpu_cores':  item.cpu.topology.cores | default(0),
+            'memory_gb':  ((item.memory | int) // 1073741824),
+            'status':     item.status | default('unknown'),
+            'address':    ([item] | ovirt.ovirt.ovirtvmips | first | default('n/a'))
+          } ] }}
+    loop: "{{ vm_raw.ovirt_vms }}"
+    when: item.name != 'HostedEngine'           # пропускаем служебную HE-VM
 
-    - name: Сохранение форматированных данных о виртуальных машинах в JSON
-      copy:
-        content: "{{ formatted_vms | to_nice_json }}"
-        dest: "{{ formatted_output_path }}"
+  # -----------------------------------------------------------------
+  # 5. Сохраняем форматированный JSON.
+  # -----------------------------------------------------------------
+  - name: Сохраняем форматированные данные
+    copy:
+      content: "{{ formatted_vms | to_nice_json }}"
+      dest: "{{ formatted_output_path }}"
 
-    - name: Завершение сессии в oVirt
-      ovirt.ovirt.ovirt_auth:
-        state: absent
-        ovirt_auth:
-          url: "https://cluster.acid-tech.ru/ovirt-engine/api"
-          username: "admin@zvirt@internal"
-          password: "P@ssw0rd"
-          ca_file: "/app/pki-resource.cer"
+  # -----------------------------------------------------------------
+  # 6. Завершаем сессию.
+  # -----------------------------------------------------------------
+  - name: Выходим из oVirt
+    ovirt.ovirt.ovirt_auth:
+      state: absent
+      ovirt_auth: "{{ ovirt_auth }}"
