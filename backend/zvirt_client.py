@@ -1,8 +1,8 @@
 import os
 import json
-# import ansible_runner
+import ansible_runner
 
-def get_vms(playbook_path="ansible/test.yml", output_path="json/vms_formatted.json"):
+def get_vms(playbook_path="ansible_zvirt/test.yml", output_path="json/vms_formatted.json"):
     """
     Запустить Ansible playbook, который внутри себя уже форматирует данные
     в vms_formatted.json, а затем прочитать этот файл и вернуть данные.

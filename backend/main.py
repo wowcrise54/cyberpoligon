@@ -63,7 +63,7 @@ async def create_vm(config: VMConfig):
 @app.get("/vms/")
 async def list_vms():
     try:
-        formatted_vms = get_vms(playbook_path="ansible/test.yml", output_path="json/vms_formatted.json")
+        formatted_vms = get_vms(playbook_path="ansible_zvirt/test.yml", output_path="json/vms_formatted.json")
         return formatted_vms
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

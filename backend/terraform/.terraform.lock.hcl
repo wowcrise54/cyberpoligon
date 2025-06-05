@@ -2,10 +2,9 @@
 # Manual edits may be lost in future updates.
 
 provider "registry.terraform.io/ovirt/ovirt" {
-  version     = "2.1.5"
-  constraints = ">= 0.6.0"
+  version = "2.1.5"
   hashes = [
-    "h1:jw/7gGJTO2vGVhRwXWqynbptlwoUhbjhC7CxSMCOYjQ=",
+    "h1:+HPdAyXT9cewLJx/Tb+cczhsxhGDeP4HE8IabDRg/Vg=",
     "zh:19dfaecdd9a6066f617921b357d672998a1bb20343cf4d5a73cc1f2ad13c9839",
     "zh:423b4c2deb3731ed3b57d40567f3f5ba8f65984311d2a0d825a8d30068e9ee1f",
     "zh:4af960f06a1fbb59ee1f4d0f219d3d68d7954bb9d5d61751d19bafba1b5d82ca",

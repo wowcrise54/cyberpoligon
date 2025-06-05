@@ -19,3 +19,15 @@ class Users(Base):
     password = Column(String, nullable=False)
     role_id = Column(Integer, ForeignKey('roles.id'), nullable=False)
     role = relationship('Role', back_populates='users')
+
+
+class VirtualMachine(Base):
+    __tablename__ = 'virtual_machine'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    os_type = Column(String, nullable=False)
+    cpu_cores = Column(Integer, nullable=False)
+    memory_gb = Column(Integer, nullable=False)
+    status = Column(String, nullable=False)
+    address = Column(String, nullable=False)

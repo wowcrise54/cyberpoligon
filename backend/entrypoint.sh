@@ -51,6 +51,9 @@ async def init_models():
 asyncio.run(init_models())
 EOF
 
+
+
+
 echo "=== Seeding roles ==="
 python - <<'EOF'
 import asyncio

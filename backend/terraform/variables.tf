@@ -34,7 +34,7 @@ variable "url" {
 variable "cert_tls" {
   description = "Путь к сертификату"
   type = string
-  default = "D:\\VKR\\cert\\pki-resource.cer"
+  default = "/app/pki-resource.cer"
 }
 variable "password" {
   description = "Пароль"
@@ -92,5 +92,5 @@ variable "template_id" {
 variable "cluster_id" {
   description = "ID кластера"
   type = string
-  default = "05877b36-309f-11f0-a91f-00163e3249e4"
+  default = "058babac-309f-11f0-8d29-00163e3249e4"
 }
