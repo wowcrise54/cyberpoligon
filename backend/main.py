@@ -51,7 +51,7 @@ class PlaybookRequest(BaseModel):
     variables: dict[str, str] = {}    # здесь на выходе то, что задаст юзер
 
 
-@app.post("/create_vm/")
+@app.post("/api/create_vm/")
 async def create_vm(config: VMConfig):
     try:
         result = run_terraform(config.dict())
