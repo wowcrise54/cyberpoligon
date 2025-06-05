@@ -82,7 +82,6 @@ export default function ScriptsTable({osType}) {
         });
       })
       .finally(() => setLoading(false));
-      .finally(() => setLoading(false));
   }, [osType]);
 
   // Открыть форму установки
