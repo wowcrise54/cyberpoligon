@@ -1,6 +1,8 @@
-from sqlalchemy import Integer, Column, String, ForeignKey
+from sqlalchemy import Integer, Column, String, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from database.db_config import Base
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
 
 class Role(Base):
     __tablename__ = 'roles'
@@ -23,8 +25,18 @@ class Users(Base):
 
 class VirtualMachine(Base):
     __tablename__ = 'virtual_machine'
+    __table_args__ = (UniqueConstraint("name", name="uq_vm_name"),)
 
-    id = Column(Integer, primary_key=True)
+    id = Column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,   # ← добавьте, чтобы было очевидно
+        nullable=False
+    )   
+    zvirt_id   = Column(UUID(as_uuid=True),
+                        unique=True,
+                        nullable=False,
+                        default=uuid.uuid4)
     name = Column(String, nullable=False)
     os_type = Column(String, nullable=False)
     cpu_cores = Column(Integer, nullable=False)

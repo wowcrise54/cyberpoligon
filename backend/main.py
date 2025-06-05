@@ -1,19 +1,22 @@
 # backend/main.py
-
-from typing import Optional
+import uuid
+from typing import Optional, List
 import os
 import json
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from semaphore_api.create_task import create_task, find_template_id_by_name, get_task_status, get_task_output, get_inventory, get_environment, get_repositories, extract_id
 from tf_generator import run_terraform
 from zvirt_client import get_vms
 from f import format_vms
-
+from database.session import get_session
+from database.users.models  import VirtualMachine 
 # импортируем роутер для /api/auth
 from database.router import router as users_router
 load_dotenv()
@@ -60,13 +63,43 @@ async def create_vm(config: VMConfig):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/vms/")
-async def list_vms():
+@app.get("/vms/", response_model=List[dict])
+async def list_vms(session: AsyncSession = Depends(get_session)):
     try:
-        formatted_vms = get_vms(playbook_path="ansible_zvirt/test.yml", output_path="json/vms_formatted.json")
+        formatted_vms = get_vms(
+            playbook_path="ansible_zvirt/test.yml",
+            output_path="json/vms_formatted.json",
+        )
+
+        for vm in formatted_vms:
+            # 1️⃣  Перекладываем zVirt-UUID в отдельную переменную
+            zvirt_uuid = uuid.UUID(vm["id"])      # str → UUID
+            # 2️⃣  Оригинальный ключ 'id' больше не нужен
+            vm_data = vm.copy()
+            vm_data.pop("id")                     # убираем, чтобы не попасть в INTEGER id
+            vm_data["zvirt_id"] = zvirt_uuid      # кладём в правильный столбец
+
+            # поиск теперь по zvirt_id, а не по name
+            stmt = select(VirtualMachine).where(VirtualMachine.zvirt_id == zvirt_uuid)
+            res  = await session.execute(stmt)
+            row  = res.scalars().first()
+
+            if row:                                # UPDATE
+                row.name       = vm_data["name"]
+                row.os_type    = vm_data["os_type"]
+                row.cpu_cores  = vm_data["cpu_cores"]
+                row.memory_gb  = vm_data["memory_gb"]
+                row.status     = vm_data["status"]
+                row.address    = vm_data["address"]
+            else:                                  # INSERT
+                session.add(VirtualMachine(**vm_data))
+
+        await session.commit()
         return formatted_vms
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+
+    except Exception as exc:
+        await session.rollback()
+        raise HTTPException(500, detail=str(exc))
 
 
 @app.get("/vms/raw/")
