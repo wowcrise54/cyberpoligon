@@ -177,6 +177,9 @@
 .script-description {
     white-space: pre-wrap;
     word-break: break-word;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .script-buttons {
@@ -251,6 +254,4 @@
 .g-select {
     width: 500px;
 }
-
-
 
