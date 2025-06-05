@@ -1,8 +1,8 @@
 test:
   hosts:
     test_debian:
-      ansible_host: 192.168.220.206
-      ansible_user: user
-      ansible_password: user
+      ansible_host: 192.168.0.84
+      ansible_user: root
+      ansible_password: P@ssw0rd
       ansible_method: sudo
-      ansible_become_pass: user
+      ansible_become_pass: P@ssw0rd

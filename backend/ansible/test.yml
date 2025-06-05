@@ -4,25 +4,25 @@
   gather_facts: false
 
   vars:
-    raw_output_path: "/NPIS/backend/json/vms_raw.json"
-    formatted_output_path: "/NPIS/backend/json/vms_formatted.json"
+    raw_output_path: "/app/json/vms_raw.json"
+    formatted_output_path: "/app/json/vms_formatted.json"
 
   tasks:
     - name: Аутентификация в oVirt
       ovirt.ovirt.ovirt_auth:
-        url: "https://zvirt-cluster.acid-tech.ru/ovirt-engine/api"
+        url: "https://cluster.acid-tech.ru/ovirt-engine/api"
         username: "admin@zvirt@internal"
         password: "P@ssw0rd"
-        ca_file: "/NPIS/backend/pki-resource.crt"
+        ca_file: "/app/pki-resource.crt"
       register: ovirt_auth
 
     - name: Получение информации о созданных виртуальных машинах
       ovirt.ovirt.ovirt_vm_info:
         auth:
-          url: "https://zvirt-cluster.acid-tech.ru/ovirt-engine/api"
+          url: "https://cluster.acid-tech.ru/ovirt-engine/api"
           username: "admin@zvirt@internal"
           password: "P@ssw0rd"
-          ca_file: "/NPIS/backend/pki-resource.crt"
+          ca_file: "/app/pki-resource.crt"
       register: vm_info
 
     - name: Сохранение сырых данных ВМ в JSON
@@ -57,7 +57,7 @@
       ovirt.ovirt.ovirt_auth:
         state: absent
         ovirt_auth:
-          url: "https://zvirt-cluster.acid-tech.ru/ovirt-engine/api"
+          url: "https://cluster.acid-tech.ru/ovirt-engine/api"
           username: "admin@zvirt@internal"
           password: "P@ssw0rd"
-          ca_file: "/NPIS/backend/pki-resource.crt"
+          ca_file: "/app/pki-resource.crt"
