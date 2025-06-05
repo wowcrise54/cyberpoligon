@@ -21,6 +21,23 @@ psql -h "${DB_HOST}" -U "${DB_USER}" -d "${DB_NAME}" -c "DROP TYPE IF EXISTS ale
 echo "=== Running Alembic migrations ==="
 alembic upgrade head
 
+echo "=== Чистим висячие последовательности ==="
+psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" <<'SQL'
+DO $$
+BEGIN
+  -- если virtual_machine_id_seq осталась без таблицы, удаляем
+  IF EXISTS (
+        SELECT 1
+          FROM pg_class c
+          JOIN pg_namespace n ON n.oid = c.relnamespace
+         WHERE c.relname      = 'virtual_machine_id_seq'
+           AND n.nspname      = 'public'        -- нужная схема
+    ) THEN
+    DROP SEQUENCE IF EXISTS public.virtual_machine_id_seq CASCADE;
+  END IF;
+END$$;
+SQL
+
 echo "=== Creating missing tables via SQLAlchemy ==="
 python - <<'EOF'
 import asyncio
