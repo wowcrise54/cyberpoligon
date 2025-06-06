@@ -11,7 +11,7 @@
 
     - name: Assert package present
       ansible.builtin.assert:
-        that: "'{{ package_name }}' in ansible_facts.packages"
+        that: "'apache2' in ansible_facts.packages"
       tags: always
 
     - name: Service facts
@@ -20,5 +20,5 @@
 
     - ansible.builtin.assert:
         that:
-          - ansible_facts.services['{{ package_name }}.service'].state == 'running'
+          - ansible_facts.services['apache2.service'].state == 'running'
       tags: always

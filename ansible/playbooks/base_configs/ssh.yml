@@ -8,7 +8,6 @@
     - ansible.builtin.assert:
         that:
           - permit_root is defined
-          - ssh_protocol is defined
       tags: always
 
   vars:
@@ -22,14 +21,6 @@
         line:  "PermitRootLogin {{ permit_root }}"
       notify: restart ssh
       tags: [ssh, root]
-
-    - name: Protocol
-      ansible.builtin.lineinfile:
-        path: "{{ sshd_config_path }}"
-        regexp: '^#?Protocol'
-        line:  "Protocol {{ ssh_protocol }}"
-      notify: restart ssh
-      tags: [ssh, proto]
 
   handlers:
     - name: restart ssh

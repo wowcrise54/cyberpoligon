@@ -4,12 +4,6 @@
   become: true
   tags: always
 
-  pre_tasks:
-    - name: Guard variables
-      ansible.builtin.assert:
-        that: ufw_allow_services is defined and ufw_allow_services|length>0
-      tags: always
-
   tasks:
     - name: Install ufw
       ansible.builtin.apt:
@@ -22,10 +16,3 @@
         state: enabled
         policy: "{{ ufw_default_policy | default('deny') }}"
       tags: [ufw, policy]
-
-    - name: Allow services
-      community.general.ufw:
-        rule: allow
-        name: "{{ item }}"
-      loop: "{{ ufw_allow_services }}"
-      tags: [ufw, allow]

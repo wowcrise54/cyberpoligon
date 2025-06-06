@@ -4,20 +4,6 @@
   become: true
   tags: always
 
-  pre_tasks:
-    - name: Guard: pkg_list must be defined
-      ansible.builtin.assert:
-        that: pkg_list is defined and pkg_list|length > 0
-        fail_msg: "Variable 'pkg_list' (list/строка пакетов) обязательна!"
-      tags: always
-
-    - name: Normalize pkg_list → list
-      ansible.builtin.set_fact:
-        pkg_effective: >-
-          {{ (pkg_list.split(',')|map('trim')|list)
-             if pkg_list is string else pkg_list }}
-      tags: always
-
   tasks:
     - name: Update apt cache
       ansible.builtin.apt:
@@ -26,6 +12,6 @@
 
     - name: Install selected packages
       ansible.builtin.apt:
-        name: "{{ pkg_effective }}"
+        name: "{{ pkg_list }}"
         state: present
       tags: [apt, install]

@@ -4,21 +4,16 @@
   become: true
   tags: always
 
-  pre_tasks:
-    - ansible.builtin.assert:
-        that: package_name is defined
-      tags: always
-
   tasks:
     - name: Install apache
       ansible.builtin.apt:
-        name: "{{ package_name }}"
+        name: apache2
         state: present
       tags: [apache, install]
 
     - name: Enable service
       ansible.builtin.service:
-        name: "{{ package_name }}"
+        name: apache2
         state: started
         enabled: yes
       tags: [apache, service]

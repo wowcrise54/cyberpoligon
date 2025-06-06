@@ -23,8 +23,8 @@
 
     - name: Run scan
       ansible.builtin.command: >
-        oscap xccdf eval --profile {{ cis_profile }}
-        --report {{ report_path }}
+        oscap xccdf eval --profile "{{ cis_profile }}"
+        --report "{{ report_path }}"
         /usr/share/xml/scap/ssg/content/ssg-ubuntu2204-ds.xml
       changed_when: false
       tags: [openscap, scan]

@@ -20,5 +20,4 @@
     - ansible.builtin.assert:
         that:
           - content | select('match','^PermitRootLogin {{ permit_root }}') | list | length > 0
-          - content | select('match','^Protocol {{ ssh_protocol }}') | list | length > 0
       tags: always

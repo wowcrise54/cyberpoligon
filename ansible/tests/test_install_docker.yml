@@ -19,11 +19,6 @@
         that: ansible_facts.services['docker.service'].state == 'running'
       tags: always
 
-    - stat:
-        path: /usr/local/bin/docker-compose
-      register: dc
-      tags: always
-
     - ansible.builtin.assert:
         that: dc.stat.exists
       tags: always

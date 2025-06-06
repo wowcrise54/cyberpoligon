@@ -8,7 +8,6 @@
     - ansible.builtin.assert:
         that:
           - docker_user        is defined
-          - compose_version    is defined
       tags: always
 
   vars:
@@ -46,15 +45,10 @@
           - docker-ce
           - docker-ce-cli
           - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin 
         state: present
       tags: [docker, engine]
-
-    - name: Compose binary
-      ansible.builtin.get_url:
-        url:  "{{ docker_compose_url }}"
-        dest: /usr/local/bin/docker-compose
-        mode: "0755"
-      tags: [docker, compose]
 
     - name: Add {{ docker_user }} to group
       ansible.builtin.user:

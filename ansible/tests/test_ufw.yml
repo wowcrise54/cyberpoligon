@@ -13,5 +13,4 @@
     - ansible.builtin.assert:
         that:
           - "'Status: active' in ufw.stdout"
-          - ufw_allow_services | map('lower') | map('regex_search', ufw.stdout | lower) | map('bool') | min
       tags: always
