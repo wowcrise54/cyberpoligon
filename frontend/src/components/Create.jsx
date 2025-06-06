@@ -18,7 +18,7 @@ const Create = () => {
     const osConfigs = {
         "Ubuntu Server": { template_id: "31f5b1f2-5d26-4de6-80a4-53f9477a428a" },
         "Windows 10": { template_id: "354e5d36-b733-4ca8-a385-5b1d655ea407" },
-        "Debian 12": { template_id: "99da7492-1ce3-4e8a-bc83-e13253d387d9" },
+        "Debian 12": { template_id: "97367da2-a9e0-4de1-a816-f61a1b7c480a" },
         "Astra": { template_id: "c047ebd7-744a-4a3f-b9a0-633660d58c48" },
         "Windows Server": {template_id: "f77b7ea6-f51f-4cb9-89e5-7230ff7c1ab3"},
         "Blank": {template_id: "00000000-0000-0000-0000-000000000000"},
