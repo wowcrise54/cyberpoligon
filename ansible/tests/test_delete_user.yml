@@ -1,0 +1,14 @@
+---
+- name: Verify delete_user
+  hosts: "{{ target_host }}"
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Ensure user absent
+      ansible.builtin.getent:
+        database: passwd
+        key: "{{ user_name_to_remove }}"
+      register: pw
+      failed_when: pw.ansible_facts.getent_passwd is defined
+      tags: always

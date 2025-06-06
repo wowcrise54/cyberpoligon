@@ -1,0 +1,3 @@
+---
+- import_playbook: "../playbooks/base_configs/delete_user.yml"
+- import_playbook: "../tests/test_delete_user.yml"

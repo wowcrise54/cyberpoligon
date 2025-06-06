@@ -1,0 +1,44 @@
+---
+- name: Verify create_user_with_passwd
+  hosts: "{{ target_host }}"              # или {{ target_hosts }}
+  become: true
+  gather_facts: false
+
+  tasks:
+    #################################################################
+    # 1.  читаем /etc/passwd и /etc/shadow ---------------------------
+    #################################################################
+    - name: Read passwd entry
+      ansible.builtin.getent:
+        database: passwd
+        key: "{{ example_user }}"
+      register: pw
+      tags: always
+
+    - name: Read shadow entry
+      ansible.builtin.getent:
+        database: shadow
+        key: "{{ example_user }}"
+      register: sh
+      tags: always
+
+    #################################################################
+    # 2.  приводим к “точно-словарю” --------------------------------
+    #################################################################
+    - name: Normalize facts → dict
+      ansible.builtin.set_fact:
+        passwd_entry: >-
+          {{
+            ( pw.ansible_facts.getent_passwd[example_user] | first )
+            if   ( pw.ansible_facts.getent_passwd[example_user] is sequence
+                   and pw.ansible_facts.getent_passwd[example_user] is not string )
+            else pw.ansible_facts.getent_passwd[example_user]
+          }}
+        shadow_entry: >-
+          {{
+            ( sh.ansible_facts.getent_shadow[example_user] | first )
+            if   ( sh.ansible_facts.getent_shadow[example_user] is sequence
+                   and sh.ansible_facts.getent_shadow[example_user] is not string )
+            else sh.ansible_facts.getent_shadow[example_user]
+          }}
+      tags: always

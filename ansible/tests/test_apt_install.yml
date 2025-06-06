@@ -1,0 +1,23 @@
+---
+- name: Verify apt_install
+  hosts: "{{ target_host }}"
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Package facts
+      ansible.builtin.package_facts:
+      tags: always
+
+    - name: List → pkg_effective
+      ansible.builtin.set_fact:
+        pkg_effective: >-
+          {{ (pkg_list.split(',')|map('trim')|list)
+             if pkg_list is string else pkg_list }}
+      tags: always
+
+    - name: Assert every package is installed
+      ansible.builtin.assert:
+        that: "'{{ item }}' in ansible_facts.packages"
+      loop: "{{ pkg_effective }}"
+      tags: always

@@ -1,0 +1,16 @@
+---
+- name: Verify UFW
+  hosts: "{{ target_host }}"
+  become: true
+  gather_facts: false
+
+  tasks:
+    - command: ufw status verbose
+      register: ufw
+      changed_when: false
+      tags: always
+
+    - ansible.builtin.assert:
+        that:
+          - "'Status: active' in ufw.stdout"
+      tags: always

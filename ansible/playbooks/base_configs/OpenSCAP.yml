@@ -1,0 +1,30 @@
+---
+- name: OpenSCAP scan (manual)
+  hosts: "{{ target_host }}"
+  become: true
+  tags: always
+
+  pre_tasks:
+    - name: Guard variables
+      ansible.builtin.assert:
+        that:
+          - cis_profile is defined
+          - report_path is defined
+      tags: always
+
+  tasks:
+    - name: Install scanner
+      ansible.builtin.apt:
+        name:
+          - openscap-scanner
+          - scap-security-guide
+        state: present
+      tags: [openscap, install]
+
+    - name: Run scan
+      ansible.builtin.command: >
+        oscap xccdf eval --profile "{{ cis_profile }}"
+        --report "{{ report_path }}"
+        /usr/share/xml/scap/ssg/content/ssg-ubuntu2204-ds.xml
+      changed_when: false
+      tags: [openscap, scan]

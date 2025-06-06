@@ -1,0 +1,10 @@
+all:
+  hosts:
+    localhost:
+      ansible_connection: local
+
+# группа, которую используют оба плейбука
+  children:
+    test_debian:
+      hosts:
+        localhost:

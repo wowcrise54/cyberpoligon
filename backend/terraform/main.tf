@@ -2,7 +2,6 @@ terraform {
   required_providers {
     ovirt = {
       source = "oVirt/ovirt"
-      version = ">=0.6.0"
     }
   }
 }
@@ -15,7 +14,7 @@ provider "ovirt" {
   # Set this to your oVirt password.
   password = var.password
   # Take trusted certificates from the specified files (list).
-  tls_ca_files = ["D:\\VKR\\cert\\pki-resource.cer"]
+  tls_ca_files = ["/app/pki-resource.cer"]
   # Set this to true to use the system certificate storage to verify the engine certificate. You must
   # Set to true if you want to run an in-memory test. In this mode all other options will be ignored.
   mock = false

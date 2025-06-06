@@ -1,0 +1,27 @@
+---
+- name: Manage existing user (manual)
+  hosts: "{{ target_host }}"
+  become: true
+  tags: always
+
+  pre_tasks:
+    - ansible.builtin.assert:
+        that:
+          - example_user   is defined
+          - example_uid    is defined
+          - example_home   is defined
+          - example_groups is defined
+      tags: always
+
+  tasks:
+    - name: Update user
+      ansible.builtin.user:
+        name:   "{{ example_user }}"
+        uid:    "{{ example_uid }}"
+        home:   "{{ example_home }}"
+        groups: "{{ example_groups | join(',') }}"
+        append: yes
+        create_home: yes
+        shell: /bin/bash
+        state: present
+      tags: [user, manage]

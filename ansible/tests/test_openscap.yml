@@ -1,0 +1,15 @@
+---
+- name: Verify openscap
+  hosts: "{{ target_host }}"
+  become: true
+  gather_facts: false
+
+  tasks:
+    - stat:
+        path: "{{ report_path }}"
+      register: rep
+      tags: always
+
+    - ansible.builtin.assert:
+        that: rep.stat.exists
+      tags: always

@@ -28,13 +28,13 @@ variable "os_type" {
 variable "url" {
   description = "Ссылка на сервер"
   type = string
-  default = "https://zvirt-cluster.acid-tech.ru/ovirt-engine/api"
+  default = "https://cluster.acid-tech.ru/ovirt-engine/api"
 }
 
 variable "cert_tls" {
   description = "Путь к сертификату"
   type = string
-  default = "D:\\VKR\\cert\\pki-resource.cer"
+  default = "/app/pki-resource.cer"
 }
 variable "password" {
   description = "Пароль"
@@ -63,7 +63,7 @@ variable "sparce_var" {
 variable "storage_domain_id" {
   description = "Id хранилища дисков"
   type = string
-  default = "e80573eb-21b0-4b37-bdae-bfb5b1a8d8d6"
+  default = "b71e2f38-55f9-44bc-9818-118c75416468"
 }
 
 variable "disk_interface_var" {
@@ -92,5 +92,5 @@ variable "template_id" {
 variable "cluster_id" {
   description = "ID кластера"
   type = string
-  default = "7bae0bcc-9fa4-11ef-ab31-00163e4da590"
+  default = "058babac-309f-11f0-8d29-00163e3249e4"
 }

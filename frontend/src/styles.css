@@ -38,6 +38,7 @@
         --g-color-private-brand-50-solid: rgb(244,250,241);
         --g-color-line-generic: rgba(46, 44, 44, 0.2);
         --g-color-background-generic: #F6F6F6;
+        --g-color-background-profile: #f3f3f3;
         
         
         --g-color-base-brand: #93C86F;
@@ -92,6 +93,7 @@
         --g-color-private-brand-50-solid: rgb(45,46,42);
         --g-color-line-generic: rgba(255, 255, 255, .2);
         --g-color-background-generic: #000000;
+        --g-color-background-profile: #1C181C;
         
         
         --g-color-base-brand: #93C86F;

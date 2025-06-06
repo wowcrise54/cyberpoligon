@@ -1,0 +1,3 @@
+---
+- import_playbook: "../playbooks/base_configs/ufw.yml"
+- import_playbook: "../tests/test_ufw.yml"

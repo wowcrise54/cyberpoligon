@@ -1,0 +1,26 @@
+---
+- name: Create many users (manual)
+  hosts: "{{ target_host }}"
+  become: true
+  tags: always
+
+  pre_tasks:
+    - name: Guard: users list required
+      ansible.builtin.assert:
+        that: users is defined and users|length > 0
+        fail_msg: >
+          'users' должен быть YAML/JSON-списком:
+          - {name: "alice", uid: 2001, groups: ["sudo"]}
+      tags: always
+
+  tasks:
+    - name: Ensure each user
+      ansible.builtin.user:
+        name:   "{{ item.name | mandatory }}"
+        uid:    "{{ item.uid  | int | mandatory }}"
+        groups: "{{ (item.groups | default([])) | join(',') }}"
+        create_home: yes
+        shell: /bin/bash
+        state: present
+      loop: "{{ users }}"
+      tags: [user, loop, create]

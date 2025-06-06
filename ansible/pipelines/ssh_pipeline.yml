@@ -1,0 +1,3 @@
+---
+- import_playbook: "../playbooks/base_configs/ssh.yml"
+- import_playbook: "../tests/test_ssh.yml"

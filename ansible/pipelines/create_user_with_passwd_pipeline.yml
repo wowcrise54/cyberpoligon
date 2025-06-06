@@ -1,0 +1,3 @@
+---
+- import_playbook: "../playbooks/base_configs/create_user_with_passwd.yml"
+- import_playbook: "../tests/test_create_user_with_passwd.yml"

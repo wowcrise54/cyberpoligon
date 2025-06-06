@@ -1,70 +1,67 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Outlet } from "react-router-dom";
 import './User.css';
 import UpperMenu from "./UpperMenu";
 import LeftMenu from "./LeftMenu";
 
-// Импортируем компоненты для рендеринга
-import Home from "./Home";
-import Create from "./Create";
-import Settings from "./Settings";
-
 const User = ({ theme, toggleTheme }) => {
-    const [isActive, setIsActive] = useState(false);
-    const [isCollapsed, setIsCollapsed] = useState(false);
-    const [selectedComponent, setSelectedComponent] = useState("home"); // Текущий компонент
+  const [isActive, setIsActive] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const sidebarRef = useRef(null);
+  const burgerRef = useRef(null);
 
-    const sidebarRef = useRef(null);
-    const burgerRef = useRef(null);
+  // Функция переключения состояния бокового меню
+  const toggleSidebar = (event) => {
+    event.stopPropagation();
+    setIsActive(prev => !prev);
+    setIsCollapsed(prev => !prev);
+  };
 
-    const toggleSidebar = (event) => {
-        event.stopPropagation();
-        setIsActive((prevState) => !prevState);
-        setIsCollapsed((prevState) => !prevState);
+  // Закрытие бокового меню при клике вне его на маленьких экранах
+  const handleClickOutside = (event) => {
+    if (
+      window.innerWidth <= 768 &&
+      sidebarRef.current &&
+      !sidebarRef.current.contains(event.target) &&
+      burgerRef.current &&
+      !burgerRef.current.contains(event.target)
+    ) {
+      setIsActive(false);
+      setIsCollapsed(false);
+    }
+  };
+
+  useEffect(() => {
+    document.title = "Главная";
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
     };
+  }, []);
 
-    const handleClickOutside = (event) => {
-        if (
-            window.innerWidth <= 768 &&
-            sidebarRef.current &&
-            !sidebarRef.current.contains(event.target) &&
-            burgerRef.current &&
-            !burgerRef.current.contains(event.target)
-        ) {
-            setIsActive(false);
-            setIsCollapsed(false);
-        }
-    };
+  return (
+    <>
+      {/* Верхнее меню с кнопкой сворачивания */}
+      <UpperMenu
+        burgerRef={burgerRef}
+        toggleSidebar={toggleSidebar}
+        theme={theme}
+        toggleTheme={toggleTheme}
+      />
 
-    useEffect(() => {
-        document.title = "Главная";
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
+      {/* Левое меню, которое зависит от состояния isActive и isCollapsed */}
+      <LeftMenu
+        isActive={isActive}
+        isCollapsed={isCollapsed}
+        sidebarRef={sidebarRef}
+      />
 
-    return (
-        <>
-            {/* Верхнее меню */}
-            <UpperMenu burgerRef={burgerRef} toggleSidebar={toggleSidebar} theme={theme} toggleTheme={toggleTheme} />
-
-            {/* Левое меню */}
-            <LeftMenu
-                sidebarRef={sidebarRef}
-                isActive={isActive}
-                isCollapsed={isCollapsed}
-                selectedComponent={selectedComponent}
-                onMenuClick={setSelectedComponent} // Обновляем текущий компонент
-            />
-
-            {/* Основная область рендеринга */}
-            <div className="content">
-                {selectedComponent === "home" && <Home />}
-                {selectedComponent === "create" && <Create />}
-                {selectedComponent === "settings" && <Settings />}
-            </div>
-        </>
-    );
+      {/* Центральная область для динамического контента */}
+      <div className="content">
+        <Outlet />
+      </div>
+    </>
+  );
 };
 
 export default User;

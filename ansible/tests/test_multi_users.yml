@@ -1,0 +1,23 @@
+---
+- name: Verify multi_users
+  hosts: "{{ target_host }}"
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Check each user in /etc/passwd
+      ansible.builtin.getent:
+        database: passwd
+        key: "{{ item.name }}"
+      register: user_entries
+      loop: "{{ users }}"
+      tags: always
+
+    - name: Assert properties
+      ansible.builtin.assert:
+        that:
+          - user_entries.results[idx].ansible_facts.getent_passwd[item.name][0].uid | int == item.uid | int
+      loop: "{{ users }}"
+      loop_control:
+        index_var: idx
+      tags: always
