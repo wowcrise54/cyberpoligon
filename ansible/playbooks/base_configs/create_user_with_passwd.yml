@@ -1,6 +1,6 @@
 ---
 - name: Add user w/ hashed password (manual)
-  hosts: {{target_host}}
+  hosts: {{ target_host }}
   become: true
   tags: always
   
