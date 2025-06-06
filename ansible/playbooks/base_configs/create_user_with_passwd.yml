@@ -1,6 +1,6 @@
 ---
 - name: Add user w/ hashed password (manual)
-  hosts: test_debian
+  hosts: {{target_host}}
   become: true
   tags: always
   
