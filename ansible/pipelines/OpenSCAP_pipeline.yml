@@ -1,3 +1,3 @@
 ---
 - import_playbook: "../playbooks/base_configs/OpenSCAP.yml"
-- import_playbook: "../tests/test_OpenSCAP.yml"
+- import_playbook: "../tests/test_openscap.yml"
