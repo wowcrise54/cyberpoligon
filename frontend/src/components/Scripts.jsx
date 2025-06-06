@@ -19,7 +19,7 @@ function formatOutput(output) {
   return String(output);
 }
 
-export default function ScriptsTable({osType}) {
+export default function ScriptsTable({osType, vmId}) {
   const [data, setData]               = useState([]);
   const [loading, setLoading]         = useState(true);
   const [selectedIds, setSelectedIds] = useState([]);
@@ -152,6 +152,7 @@ export default function ScriptsTable({osType}) {
         headers: {'Content-Type': 'application/json'},
         body:    JSON.stringify({
           template_name: item['Название'],
+          vm_id:         vmId,
           variables:     installModalParams,
         }),
       });

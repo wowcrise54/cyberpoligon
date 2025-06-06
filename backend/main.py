@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from utils.inventory_reader import alias_by_ip
 
 from semaphore_api.create_task import (
     create_task,
@@ -61,6 +62,7 @@ class VMConfig(BaseModel):
 
 class PlaybookRequest(BaseModel):
     template_name: str
+    vm_id: str 
     variables: dict[str, str] = {}    # здесь на выходе то, что задаст юзер
 
 
@@ -174,8 +176,22 @@ async def get_vms_raw():
 
 
 @app.post("/api/run_playbook")
-async def create_playbook_task(req: PlaybookRequest):
+async def create_playbook_task(req: PlaybookRequest,
+                               session: AsyncSession = Depends(get_session)):
     try:
+
+        stmt = select(VirtualMachine).where(
+            VirtualMachine.zvirt_id == uuid.UUID(req.vm_id)
+        )
+        res = await session.execute(stmt)
+        vm = res.scalar_one_or_none()
+        if not vm:
+            raise HTTPException(status_code=404, detail="VM not found")
+
+        alias = alias_by_ip(vm.address) or vm.name
+        req.variables["target_host"] = alias        # 💡 добавили в переменные
+
+        # --- остальной код прежний ---
         template_id = find_template_id_by_name(req.template_name)
         if not template_id:
             raise HTTPException(status_code=404, detail="Шаблон не найден")

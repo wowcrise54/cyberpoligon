@@ -294,7 +294,7 @@ const VMSettings = () => {
             </div>
           </div>
           <div className="vm-params">
-            <Scripts osType={vm.os_type} />
+            <Scripts osType={vm.os_type} vmId={vm.id} />
           </div>
         </div>
       </Card>
