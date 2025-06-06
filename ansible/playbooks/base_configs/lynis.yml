@@ -1,0 +1,31 @@
+---
+- name: Run Lynis audit (manual)
+  hosts: "{{ target_host }}"
+  become: true
+  tags: always
+
+  pre_tasks:
+    - name: Guard lynis_mode variable
+      ansible.builtin.assert:
+        that: lynis_mode is defined
+        fail_msg: "lynis_mode (например '--quick') обязателен"
+      tags: always
+
+  tasks:
+    - name: Install lynis
+      ansible.builtin.apt:
+        name: lynis
+        state: present
+      tags: [lynis, install]
+
+    - name: Run lynis
+      ansible.builtin.command: >
+        lynis audit system {{ lynis_mode }}
+      register: lynis_out
+      changed_when: false
+      tags: [lynis, audit]
+
+    - name: Show hardening index
+      ansible.builtin.debug:
+        msg: "{{ lynis_out.stdout | regex_search('Hardening index.*', multiline=True) }}"
+      tags: [lynis, report]

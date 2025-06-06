@@ -1,0 +1,23 @@
+---
+- name: Verify ssh hardening
+  hosts: "{{ target_host }}"
+  become: true
+  gather_facts: false
+
+  vars:
+    cfg: /etc/ssh/sshd_config
+
+  tasks:
+    - slurp:
+        src: "{{ cfg }}"
+      register: cfg_raw
+      tags: always
+
+    - set_fact:
+        content: "{{ cfg_raw.content | b64decode | split('\n') }}"
+      tags: always
+
+    - ansible.builtin.assert:
+        that:
+          - content | select('match','^PermitRootLogin {{ permit_root }}') | list | length > 0
+      tags: always

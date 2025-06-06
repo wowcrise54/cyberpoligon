@@ -1,13 +1,23 @@
-FROM node:alpine as build
+# --- Этап сборки (build) ---
+    FROM node:alpine AS build
 
-COPY package.json package.json
-RUN npm install
-COPY . .
-RUN npm run build
-
-FROM nginx:stable-alpine
-
-COPY --from=build /dist /usr/share/nginx/html
-COPY --from=build nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 3000
-CMD [ "nginx", "-g", "daemon off;" ]
+    # Устанавливаем зависимости (отдельный слой для кэширования)
+    COPY package*.json ./
+    RUN npm install
+    
+    # Копируем исходный код и собираем проект
+    COPY . .
+    RUN npm run build
+    
+    # --- Этап запуска (production) ---
+    FROM nginx:stable-alpine
+    
+    # Копируем собранные файлы из предыдущего этапа
+    COPY --from=build /dist /usr/share/nginx/html
+    
+    # Копируем конфиг Nginx (если он есть)
+    COPY --from=build nginx.conf /etc/nginx/conf.d/default.conf
+    
+    # Открываем порт и запускаем Nginx
+    EXPOSE 5173
+    CMD ["nginx", "-g", "daemon off;"]

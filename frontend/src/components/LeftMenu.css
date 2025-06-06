@@ -3,7 +3,7 @@
     position: fixed;
     top: 52px;
     left: 0;
-    width: 180px;
+    width: 220px;
     height: 100%;
     border-right: 2px solid var(--g-color-line-generic);
     padding: 0 10px;
@@ -18,16 +18,21 @@
     padding: 0; /* Убираем отступы */
 }
 
+.list {
+    padding-top: 10px;
+}
+
 .list .list-item {
     display: flex;
     align-items: center;
     justify-content: left;
-    margin: 10px 0;
+    margin: 6px 0;
 }
 
 .sidebar.collapsed .list-item {
-    justify-content: center; /* Центрируем иконки */
-    margin: 10px 12px;
+    justify-content: center;
+    align-items: center;
+    padding: 0 10px;
 }
 
 .list .list-item .text {
@@ -40,7 +45,27 @@
 
 .sidebar .button {
     justify-content: left;
+    align-items: center;
+    height: 40px;
+    gap: 20px;
 }
 
+.menu-item {
+    width: 100%;
+}
+
+.menu-item.active {
+    width: 100%;
+}
+/* Применяем стиль к кнопке внутри пункта меню */
+.menu-item .button {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  /* Если пункт меню выбран (активный), задаём другой фон */
+  .menu-item.active .button {
+    background-color: var(--g-color-private-brand-300); /* Пример: синий фон для выбранного пункта */
+  }
+  
 
 

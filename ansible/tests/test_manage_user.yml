@@ -1,0 +1,20 @@
+---
+- name: Verify manage_user
+  hosts: "{{ target_host }}"
+  become: true
+  gather_facts: false
+
+  tasks:
+    - getent:
+        database: passwd
+        key: "{{ example_user }}"
+      register: pw
+      tags: always
+
+    - ansible.builtin.assert:
+        vars:
+          p: "{{ pw.ansible_facts.getent_passwd[example_user][0] }}"
+        that:
+          - p.uid | int == example_uid | int
+          - p.dir == example_home
+      tags: always

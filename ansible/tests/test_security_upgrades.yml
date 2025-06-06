@@ -1,0 +1,16 @@
+---
+- name: Verify security_upgrades
+  hosts: "{{ target_host }}"
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Simulate upgrades
+      ansible.builtin.command: apt-get -s upgrade
+      register: up
+      changed_when: false
+      tags: always
+
+    - ansible.builtin.assert:
+        that: up.rc == 0
+      tags: always

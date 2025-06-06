@@ -18,7 +18,7 @@ const Create = () => {
     const osConfigs = {
         "Ubuntu Server": { template_id: "31f5b1f2-5d26-4de6-80a4-53f9477a428a" },
         "Windows 10": { template_id: "354e5d36-b733-4ca8-a385-5b1d655ea407" },
-        "Debian 12": { template_id: "3b749f0a-2781-4eb4-82ec-2d4b5e8f1655" },
+        "Debian 12": { template_id: "97367da2-a9e0-4de1-a816-f61a1b7c480a" },
         "Astra": { template_id: "c047ebd7-744a-4a3f-b9a0-633660d58c48" },
         "Windows Server": {template_id: "f77b7ea6-f51f-4cb9-89e5-7230ff7c1ab3"},
         "Blank": {template_id: "00000000-0000-0000-0000-000000000000"},
@@ -44,7 +44,7 @@ const Create = () => {
         console.log("Отправляемые данные:", requestData);
 
         try {
-            const response = await fetch("https://192.168.0.43/api/create_vm/", {
+            const response = await fetch("http://192.168.220.198/api/create_vm/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -68,12 +68,12 @@ const Create = () => {
 
     return (
         <div className="create">
-            <Text variant="display-1">Создание ВМ</Text>
+            <Text variant="display-1">Форма создания виртуальной машины</Text>
 
             <div className="option">
-                <Text variant="body-2">Название</Text>
+                <Text variant="body-2">Название<Text variant="body-2" color="danger">*</Text></Text>
                 <TextInput
-                    style={{ width: "300px" }}
+                    size="l"
                     placeholder="Название виртуальной машины"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -81,11 +81,10 @@ const Create = () => {
             </div>
 
             <div className="option">
-                <Text variant="body-2">Операционная система</Text>
+                <Text variant="body-2">Операционная система<Text variant="body-2" color="danger">*</Text></Text>
                 <Select
-                    size="m"
+                    size="l"
                     placeholder="Выберите ОС"
-                    width={300}
                     value={osType} // Указываем текущее значение
                     onUpdate={(value) => setOsType(value)} // Устанавливаем значение в osType
                 >
@@ -99,9 +98,9 @@ const Create = () => {
             </div>
 
             <div className="option">
-                <Text variant="body-2">Количество ядер процессора</Text>
+                <Text variant="body-2">Количество ядер процессора<Text variant="body-2" color="danger">*</Text></Text>
                 <TextInput
-                    style={{ width: "300px" }}
+                    size="l"
                     type="number"
                     placeholder="Введите количество ядер"
                     value={cpuCores}
@@ -110,9 +109,9 @@ const Create = () => {
             </div>
 
             <div className="option">
-                <Text variant="body-2">Оперативная память (ГБ)</Text>
+                <Text variant="body-2">Оперативная память (ГБ)<Text variant="body-2" color="danger">*</Text></Text>
                 <TextInput
-                    style={{ width: "300px" }}
+                    size="l"
                     type="number"
                     placeholder="Введите объём памяти"
                     value={memory}
@@ -121,9 +120,9 @@ const Create = () => {
             </div>
 
             <div className="option">
-                <Text variant="body-2">Размер жёсткого диска (ГБ)</Text>
+                <Text variant="body-2">Размер жёсткого диска (ГБ)<Text variant="body-2" color="danger">*</Text></Text>
                 <TextInput
-                    style={{ width: "300px" }}
+                    size="l"
                     type="number"
                     placeholder="Введите размер диска (необязательно)"
                     value={storage}

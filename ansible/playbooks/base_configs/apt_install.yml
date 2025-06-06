@@ -1,0 +1,17 @@
+---
+- name: Install list of packages (manual input)
+  hosts: "{{ target_host }}"
+  become: true
+  tags: always
+
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+      tags: [apt, cache]
+
+    - name: Install selected packages
+      ansible.builtin.apt:
+        name: "{{ pkg_list }}"
+        state: present
+      tags: [apt, install]

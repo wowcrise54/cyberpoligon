@@ -1,0 +1,10 @@
+---
+- name: Ping hosts (no vars needed)
+  hosts: "{{ target_host }}"
+  gather_facts: false
+  tags: always
+
+  tasks:
+    - name: Ping
+      ansible.builtin.ping:
+      tags: [ping, connectivity]

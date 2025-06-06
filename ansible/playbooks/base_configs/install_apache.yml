@@ -1,0 +1,19 @@
+---
+- name: Install Apache (manual)
+  hosts: "{{ target_host }}"
+  become: true
+  tags: always
+
+  tasks:
+    - name: Install apache
+      ansible.builtin.apt:
+        name: apache2
+        state: present
+      tags: [apache, install]
+
+    - name: Enable service
+      ansible.builtin.service:
+        name: apache2
+        state: started
+        enabled: yes
+      tags: [apache, service]

@@ -1,0 +1,21 @@
+---
+- name: Create group (manual)
+  hosts: "{{ target_host }}"
+  become: true
+  tags: always
+
+  pre_tasks:
+    - name: Guard variables
+      ansible.builtin.assert:
+        that:
+          - group_name is defined
+          - group_gid  is defined
+      tags: always
+
+  tasks:
+    - name: Ensure group exists
+      ansible.builtin.group:
+        name: "{{ group_name }}"
+        gid:  "{{ group_gid }}"
+        state: present
+      tags: [group, create]

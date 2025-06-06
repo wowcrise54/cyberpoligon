@@ -1,0 +1,59 @@
+---
+- name: Install Docker (manual)
+  hosts: "{{ target_host }}"
+  become: true
+  tags: always
+
+  pre_tasks:
+    - ansible.builtin.assert:
+        that:
+          - docker_user        is defined
+      tags: always
+
+  vars:
+    docker_compose_url: >-
+      https://github.com/docker/compose/releases/download/v{{ compose_version }}/docker-compose-{{ ansible_system | lower }}-{{ ansible_architecture }}
+
+  tasks:
+    - name: Install deps
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+      tags: [docker, deps]
+
+    - name: Add repo key
+      ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+      tags: [docker, repo]
+
+    - name: Add repo
+      ansible.builtin.apt_repository:
+        repo: >-
+          deb [arch={{ ansible_architecture }}]
+          https://download.docker.com/linux/ubuntu
+          {{ ansible_lsb.codename }} stable
+      tags: [docker, repo]
+
+    - name: Install engine
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin 
+        state: present
+      tags: [docker, engine]
+
+    - name: Add {{ docker_user }} to group
+      ansible.builtin.user:
+        name: "{{ docker_user }}"
+        groups: docker
+        append: yes
+      when: docker_user != 'root'
+      tags: [docker, group]

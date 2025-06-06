@@ -1,0 +1,16 @@
+---
+- name: Verify lynis
+  hosts: "{{ target_host }}"
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Check last report exists
+      ansible.builtin.stat:
+        path: /var/log/lynis-report.dat
+      register: rep
+      tags: always
+
+    - ansible.builtin.assert:
+        that: rep.stat.exists
+      tags: always

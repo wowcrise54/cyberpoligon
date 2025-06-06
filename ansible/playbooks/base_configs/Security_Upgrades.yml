@@ -1,0 +1,17 @@
+---
+- name: Security upgrades (no vars)
+  hosts: "{{ target_host }}"
+  become: true
+  tags: always
+
+  tasks:
+    - name: Apt cache update
+      ansible.builtin.apt:
+        update_cache: yes
+      tags: [apt, cache]
+
+    - name: Apply security updates
+      ansible.builtin.apt:
+        upgrade: dist
+        only_upgrade: yes
+      tags: [apt, security]
