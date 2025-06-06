@@ -1,6 +1,6 @@
 ---
 - name: Verify create_user_with_directory
-  hosts: test_debian
+  hosts: "{{ target_host }}"
   become: true
   gather_facts: false
 

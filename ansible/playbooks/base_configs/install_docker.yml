@@ -1,6 +1,6 @@
 ---
 - name: Install Docker (manual)
-  hosts: test_debian
+  hosts: "{{ target_host }}"
   become: true
   tags: always
 

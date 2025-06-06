@@ -1,6 +1,6 @@
 ---
 - name: Verify security_upgrades
-  hosts: test_debian
+  hosts: "{{ target_host }}"
   become: true
   gather_facts: false
 

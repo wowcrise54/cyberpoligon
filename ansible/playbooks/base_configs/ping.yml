@@ -1,6 +1,6 @@
 ---
 - name: Ping hosts (no vars needed)
-  hosts: test_debian
+  hosts: "{{ target_host }}"
   gather_facts: false
   tags: always
 

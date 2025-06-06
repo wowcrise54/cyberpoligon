@@ -1,6 +1,6 @@
 ---
 - name: Verify lynis
-  hosts: test_debian
+  hosts: "{{ target_host }}"
   become: true
   gather_facts: false
 

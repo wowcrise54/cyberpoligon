@@ -1,6 +1,6 @@
 ---
 - name: Configure UFW (manual)
-  hosts: test_debian
+  hosts: "{{ target_host }}"
   become: true
   tags: always
 
