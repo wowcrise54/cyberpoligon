@@ -14,7 +14,7 @@ export default function EditScriptModal({ open, onClose, script, onSave }) {
     setLoading(true);
 
     // Подтягиваем весь массив, затем ищем нужный скрипт
-    fetch(`${import.meta.env.VITE_API_URL}/api/scripts`)
+    fetch(`/api/scripts`)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
@@ -42,7 +42,7 @@ export default function EditScriptModal({ open, onClose, script, onSave }) {
 
   const handleSave = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/scripts/${script.id}`, {
+      const res = await fetch(`/api/scripts/${script.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ description }),

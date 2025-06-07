@@ -11,7 +11,7 @@ const LeftMenu = ({ isActive, isCollapsed, sidebarRef }) => {
   async function logout() {
     try {
       // Опционально: сначала делаем logout-запрос на бэкенд
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/logout`, {
+      const res = await fetch(`/api/logout`, {
         method: "POST",
         headers: {
           Authorization: "Bearer " + sessionStorage.getItem("token"),

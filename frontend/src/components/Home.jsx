@@ -12,7 +12,7 @@ const Home = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/vms/`);
+      const response = await fetch(`http://localhost:8000/vms/`);
       if (!response.ok) {
         throw new Error(`Ошибка ${response.status}: ${response.statusText}`);
       }

@@ -24,8 +24,8 @@ export default function Users() {
 
     // параллельно запрашиваем список пользователей и список ролей
     Promise.all([
-      fetch(`${import.meta.env.VITE_API_URL}/api/users`, { headers }).then(r => r.ok ? r.json() : Promise.reject(r.statusText)),
-      fetch(`${import.meta.env.VITE_API_URL}/api/roles`, { headers }).then(r => r.ok ? r.json() : Promise.reject(r.statusText))
+      fetch(`/api/users`, { headers }).then(r => r.ok ? r.json() : Promise.reject(r.statusText)),
+      fetch(`/api/roles`, { headers }).then(r => r.ok ? r.json() : Promise.reject(r.statusText))
     ])
       .then(([usersData, rolesData]) => {
         setUsers(usersData);
@@ -43,7 +43,7 @@ export default function Users() {
     const token   = sessionStorage.getItem("token");
     const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
 
-    fetch(`${import.meta.env.VITE_API_URL}/api/users/${userId}/role`, {
+    fetch(`/api/users/${userId}/role`, {
       method: "PATCH",
       headers,
       body: JSON.stringify({ role: newRole }),
