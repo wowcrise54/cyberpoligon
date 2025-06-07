@@ -24,6 +24,6 @@ jobs:
       - name: SonarQube Quality Gate check
         uses: sonarsource/sonarqube-quality-gate-action@v1.2.0
         with:
-          scanMetadataReportPath: .scannerwork/report-task.txt
+          scanMetadataReportFile: .scannerwork/report-task.txt
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

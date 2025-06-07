@@ -25,3 +25,13 @@ Environment variables:
 
 Main python backend requirements located at file /backend/requirements.txt
 
+## Continuous Integration
+
+This project uses GitHub Actions to run a SonarQube scan for SAST checks. To
+enable the workflow you must configure two repository secrets:
+
+1. `SONAR_HOST_URL` - URL of the SonarQube server.
+2. `SONAR_TOKEN` - authentication token with permissions to run analyses.
+
+Without these secrets the workflow will fail to start the SonarQube scan.
+
