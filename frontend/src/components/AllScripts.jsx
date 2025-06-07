@@ -25,7 +25,7 @@ export default function AllScripts() {
 
   // Загрузка таблицы
   useEffect(() => {
-    fetch("/api/scripts")
+    fetch(`${import.meta.env.VITE_API_URL}/api/scripts`)
       .then(res => res.json())
       .then(scripts =>
         setData(scripts.map(s => ({
@@ -49,7 +49,7 @@ export default function AllScripts() {
     }
 
     try {
-      const res = await fetch(`/api/scripts/${id}`, { method: "DELETE" });
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/scripts/${id}`, { method: "DELETE" });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ detail: res.statusText }));
         throw new Error(err.detail || res.statusText);

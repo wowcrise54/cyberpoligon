@@ -12,7 +12,7 @@ export function ProtectedRoute() {
       return;
     }
 
-    fetch("api/protected", {
+    fetch(`${import.meta.env.VITE_API_URL}/api/protected`, {
       headers: { Authorization: "Bearer " + token },
     })
       .then(res => res.ok ? setStatus("ok") : setStatus("fail"))

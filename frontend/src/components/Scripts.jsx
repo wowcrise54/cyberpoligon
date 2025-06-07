@@ -50,7 +50,7 @@ export default function ScriptsTable({osType, vmId}) {
   // --- Загрузка списка скриптов ---
   useEffect(() => {
     setLoading(true);
-    fetch('/api/scripts')
+    fetch(`${import.meta.env.VITE_API_URL}/api/scripts`)
       .then(res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
@@ -114,7 +114,7 @@ export default function ScriptsTable({osType, vmId}) {
   const handleRunClick = async (item) => {
     setScriptForInstall(item);
     try {
-      const res = await fetch(`/api/scripts/${item._raw.id}/survey_vars`);
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/scripts/${item._raw.id}/survey_vars`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const defs = await res.json();
       setInstallModalVars(defs);
@@ -147,7 +147,7 @@ export default function ScriptsTable({osType, vmId}) {
     );
 
     try {
-      const createRes = await fetch('/api/run_playbook', {
+      const createRes = await fetch(`${import.meta.env.VITE_API_URL}/api/run_playbook`, {
         method:  'POST',
         headers: {'Content-Type': 'application/json'},
         body:    JSON.stringify({
@@ -170,7 +170,7 @@ export default function ScriptsTable({osType, vmId}) {
       const timer = setInterval(async () => {
         try {
           const statusRes = await fetch(
-            `/api/run_playbook/status?task_id=${task_id}`
+            `${import.meta.env.VITE_API_URL}/api/run_playbook/status?task_id=${task_id}`
           );
           if (!statusRes.ok) throw new Error(`HTTP ${statusRes.status}`);
           const {status, output} = await statusRes.json();

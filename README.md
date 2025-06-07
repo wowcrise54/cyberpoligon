@@ -21,6 +21,7 @@ Environment variables:
 4) POSTGRES_PORT=5432
 5) LOCAL_PG_DATA=./postgres_data
 6) PGDATA=/var/lib/postgresql/data/pgdata
+7) VITE_API_URL=http://localhost:8000
 
 
 Main python backend requirements located at file /backend/requirements.txt

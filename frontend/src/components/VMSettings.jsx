@@ -38,7 +38,7 @@ const VMSettings = () => {
       setError(null);
 
       try {
-        const response = await fetch("http://localhost:8000/vms/"); // Укажите ваш URL
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/vms/`);
         if (!response.ok) {
           throw new Error(`Ошибка ${response.status}: ${response.statusText}`);
         }
