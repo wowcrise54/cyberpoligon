@@ -91,6 +91,7 @@ services:
   semaphore:
     image: semaphoreui/semaphore:v2.13.15-powershell7.5.0
     entrypoint: ["/init.sh"]
+    user: root
     env_file:
       - .env
     environment:
