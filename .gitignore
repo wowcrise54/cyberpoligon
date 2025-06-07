@@ -25,4 +25,7 @@ lerna-debug.log*
 *.njsproj
 *.sln
 *.sw?
+.pytest_cache/
+__pycache__/
+*.pyc
 .venv/
