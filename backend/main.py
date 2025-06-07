@@ -3,6 +3,7 @@ import uuid
 from typing import Optional, List
 import os
 import json
+import asyncio
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,6 +26,7 @@ from semaphore_api.create_task import (
 from tf_generator import run_terraform
 from zvirt_client import get_vms        # <<< Оставляем вызов get_vms
 from database.session import get_session
+from database.db_config import async_session_maker
 from database.users.models import VirtualMachine
 # импортируем роутер для /api/auth
 from database.router import router as users_router
@@ -46,6 +48,58 @@ STATUS_MAP = {
     "waiting": "pending",   # ← теперь фронт видит familiar "pending"
     "error":   "failure",   # (у Semaphore нет 'failure', он шлёт 'error')
 }
+
+
+# ---------------------------------------------------------------------------
+# Фоновая задача: каждую минуту запускаем playbook
+# test.yml, обновляем СГ в базе
+# ---------------------------------------------------------------------------
+
+async def sync_vms_once():
+    """Запускает Ansible playbook и синхронизирует
+    таблицу ``virtual_machine``."""
+    formatted_vms = get_vms(
+        playbook_path="ansible_zvirt/test.yml",
+        output_path="json/vms_formatted.json",
+    )
+
+    async with async_session_maker() as session:
+        for vm in formatted_vms:
+            zvirt_uuid = uuid.UUID(vm["id"])
+            vm_data = vm.copy()
+            vm_data.pop("id")
+            vm_data["zvirt_id"] = zvirt_uuid
+
+            stmt = select(VirtualMachine).where(VirtualMachine.zvirt_id == zvirt_uuid)
+            res = await session.execute(stmt)
+            existing_vm = res.scalars().first()
+
+            if existing_vm:
+                existing_vm.name = vm_data["name"]
+                existing_vm.os_type = vm_data["os_type"]
+                existing_vm.cpu_cores = vm_data["cpu_cores"]
+                existing_vm.memory_gb = vm_data["memory_gb"]
+                existing_vm.status = vm_data["status"]
+                existing_vm.address = vm_data["address"]
+            else:
+                session.add(VirtualMachine(**vm_data))
+
+        await session.commit()
+
+
+async def sync_vms_loop():
+    """Запускает ``sync_vms_once`` каждые 60 секунд."""
+    while True:
+        try:
+            await sync_vms_once()
+        except Exception as exc:  # pragma: no cover - для логов
+            print(f"VM sync error: {exc}")
+        await asyncio.sleep(60)
+
+
+@app.on_event("startup")
+async def start_background_tasks():
+    asyncio.create_task(sync_vms_loop())
 
 # прокидываем все роуты авторизации под /api
 app.include_router(users_router, prefix="/api")
@@ -94,52 +148,12 @@ async def create_vm(config: VMConfig):
 
 @app.get("/vms/", response_model=List[VMResponse])
 async def list_vms(session: AsyncSession = Depends(get_session)):
-    """
-    1) Сначала опрашиваем гипервизор через get_vms() и синхронизируем записи в БД.
-    2) После commit-а забираем все строки из таблицы virtual_machine и возвращаем их.
-    """
+    """Возвращает все записи из таблицы ``virtual_machine``."""
     try:
-        # 1. Получаем «живой» список ВМ из zVirt (список словарей)
-        formatted_vms = get_vms(
-            playbook_path="ansible_zvirt/test.yml",
-            output_path="json/vms_formatted.json",
-        )
-
-        # 2. Апдейтим/создаём записи в таблице virtual_machine
-        for vm in formatted_vms:
-            # Перекладываем zVirt-UUID в отдельную переменную
-            zvirt_uuid = uuid.UUID(vm["id"])      # str → UUID
-            # Копируем все поля, убираем ключ "id" из словаря
-            vm_data = vm.copy()
-            vm_data.pop("id")
-            vm_data["zvirt_id"] = zvirt_uuid
-
-            # Ищем в базе по zvirt_id
-            stmt = select(VirtualMachine).where(VirtualMachine.zvirt_id == zvirt_uuid)
-            res  = await session.execute(stmt)
-            existing_vm = res.scalars().first()
-
-            if existing_vm:
-                # UPDATE: просто обновляем все нужные поля
-                existing_vm.name      = vm_data["name"]
-                existing_vm.os_type   = vm_data["os_type"]
-                existing_vm.cpu_cores = vm_data["cpu_cores"]
-                existing_vm.memory_gb = vm_data["memory_gb"]
-                existing_vm.status    = vm_data["status"]
-                existing_vm.address   = vm_data["address"]
-            else:
-                # INSERT: создаём новую запись, если её не было в БД
-                session.add(VirtualMachine(**vm_data))
-
-        # 3. Фиксируем изменения в БД
-        await session.commit()
-
-        # 4. Снова читаем из таблицы и возвращаем результат фронту
         stmt_all = select(VirtualMachine)
-        res_all  = await session.execute(stmt_all)
+        res_all = await session.execute(stmt_all)
         vms_in_db = res_all.scalars().all()
 
-        # Собираем список словарей в формате VMResponse
         result_list = []
         for vm_obj in vms_in_db:
             result_list.append({
