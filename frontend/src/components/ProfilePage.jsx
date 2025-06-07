@@ -17,7 +17,7 @@ export default function ProfilePage() {
     const token   = sessionStorage.getItem("token");
     const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
 
-    fetch("/api/me", { headers })
+    fetch(`${import.meta.env.VITE_API_URL}/api/me`, { headers })
       .then(r => r.ok ? r.json() : Promise.reject(r.statusText))
       .then(profile => {
         setMe(profile);

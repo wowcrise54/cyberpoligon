@@ -11,7 +11,7 @@ export default function ProfileBtn() {
     const token = sessionStorage.getItem("token");
     if (!token) return;
 
-    fetch("/api/me", {
+    fetch(`${import.meta.env.VITE_API_URL}/api/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',

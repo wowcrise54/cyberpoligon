@@ -29,7 +29,7 @@ export default function Settings() {
         setIsLoading(true);
 
         try {
-            const res = await fetch("/api/scripts", {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/scripts`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name, path, description, tag, app }),
