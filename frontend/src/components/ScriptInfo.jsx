@@ -12,7 +12,7 @@ const ScriptInfo = ({ open, onClose, script }) => {
       return;
     }
     setLoading(true);
-    fetch(`${import.meta.env.VITE_API_URL}/api/scripts`)
+    fetch(`/api/scripts`)
       .then(res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
