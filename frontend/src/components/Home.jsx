@@ -12,7 +12,7 @@ const Home = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("http://localhost:8000/vms/"); // Поменяйте URL на ваш
+      const response = await fetch("/vms/");
       if (!response.ok) {
         throw new Error(`Ошибка ${response.status}: ${response.statusText}`);
       }
